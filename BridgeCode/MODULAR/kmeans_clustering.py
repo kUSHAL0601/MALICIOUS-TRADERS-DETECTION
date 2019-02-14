@@ -20,9 +20,9 @@ def get_weight(severity,traders,option):
 		sum_d={}
 		for i in set(traders):
 			sum_d[i]=0
-		for i in len(traders):
+		for i in range(len(traders)):
 			sum_d[traders[i]]+=severity[i]
-		for i in len(severity):
+		for i in range(len(severity)):
 			severity[i]/=sum_d[traders[i]]
 		return severity
 	else:
