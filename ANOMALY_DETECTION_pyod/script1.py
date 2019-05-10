@@ -2,96 +2,53 @@ import matplotlib.pyplot as plt
 from statistics import mean,stdev,median
 import csv
 
-data_a1_buy_stddev=[]
-data_a1_cumulative_buy_stddev=[]
-data_a1_cumulative_mean_buy=[]
-data_a1_cumulative_mean_sell=[]
-data_a1_cumulative_sell_stddev=[]
-data_a1_cumulative_sum_buy=[]
-data_a1_cumulative_sum_sell=[]
-data_a1_cumulative_vol_buy_stddev=[]
-data_a1_cumulative_vol_mean_buy=[]
-data_a1_cumulative_vol_mean_sell=[]
-data_a1_cumulative_vol_sell_stddev=[]
-data_a1_cumulative_vol_sum_buy=[]
-data_a1_cumulative_vol_sum_sell=[]
-data_a1_max_buy=[]
-data_a1_max_sell=[]
-data_a1_mean_buy=[]
-data_a1_mean_sell=[]
-data_a1_median_buy=[]
-data_a1_median_sell=[]
-data_a1_min_buy=[]
-data_a1_min_sell=[]
-data_a1_mov_avg_buy_stddev=[]
-data_a1_mov_avg_cumulative_buy_stddev=[]
-data_a1_mov_avg_cumulative_max_buy=[]
-data_a1_mov_avg_cumulative_max_sell=[]
-data_a1_mov_avg_cumulative_mean_buy=[]
-data_a1_mov_avg_cumulative_mean_sell=[]
-data_a1_mov_avg_cumulative_median_buy=[]
-data_a1_mov_avg_cumulative_median_sell=[]
-data_a1_mov_avg_cumulative_min_buy=[]
-data_a1_mov_avg_cumulative_vol_min_sell=[]
-data_a1_mov_avg_cumulative_sell_stddev=[]
-data_a1_mov_avg_cumulative_vol_sum_buy=[]
-data_a1_mov_avg_cumulative_vol_sum_sell=[]
-data_a1_mov_avg_max_buy=[]
-data_a1_mov_avg_max_sell=[]
-data_a1_mov_avg_mean_buy=[]
-data_a1_mov_avg_mean_sell=[]
-data_a1_mov_avg_median_buy=[]
-data_a1_mov_avg_median_sell=[]
-data_a1_mov_avg_min_buy=[]
-data_a1_mov_avg_min_sell=[]
-data_a1_mov_avg_sell_stddev=[]
-data_a1_mov_avg_sum_buy=[]
-data_a1_mov_avg_sum_sell=[]
-data_a1_mov_avg_vol_buy_stddev=[]
-data_a1_mov_avg_vol_max_buy=[]
-data_a1_mov_avg_vol_max_sell=[]
-data_a1_mov_avg_vol_mean_buy=[]
-data_a1_mov_avg_vol_mean_sell=[]
-data_a1_mov_avg_cumulative_median_buy=[]
-data_a1_mov_avg_cumulative_vol_median_sell=[]
-data_a1_mov_avg_cumulative_vol_min_buy=[]
-data_sum_buy=[]
-data_sum_sell=[]
-data_a1_vol_sum_buy=[]
-data_a1_sell_stddev=[]
-data_a1_vol_buy_stddev=[]
-data_a1_vol_max_buy=[]
-data_a1_vol_max_sell=[]
-data_a1_vol_sum_sell=[]
-data_a1_vol_sum_buy=[]
-data_a1_vol_sell_stddev=[]
-data_a1_vol_min_sell=[]
-data_a1_vol_min_buy=[]
-data_a1_vol_median_sell=[]
-data_a1_vol_median_buy=[]
-data_a1_vol_mean_sell=[]
-data_a1_vol_mean_buy=[]
-data_a1_vol_max_sell=[]
-data_a1_vol_max_buy=[]
-data_a1_mov_avg_vol_sum_sell=[]
-data_a1_mov_avg_vol_sum_buy=[]
-data_a1_mov_avg_vol_sell_stddev=[]
-data_a1_mov_avg_vol_min_sell=[]
-data_a1_mov_avg_vol_min_buy=[]
-data_a1_mov_avg_vol_min_sell=[]
-data_a1_mov_avg_vol_median_buy=[]
-data_a1_mov_avg_vol_median_sell=[]
-data_a1_mov_avg_cumulative_sum_buy=[]
-data_a1_mov_avg_cumulative_sum_sell=[]
-data_a1_mov_avg_cumulative_min_sell=[]
-data_a1_mov_avg_cumulative_vol_max_buy=[]
-data_a1_mov_avg_cumulative_vol_max_sell=[]
-data_a1_mov_avg_cumulative_vol_mean_sell=[]
-data_a1_mov_avg_cumulative_vol_mean_buy=[]
-data_a1_mov_avg_cumulative_vol_median_buy=[]
-data_a1_mov_avg_cumulative_vol_buy_stddev=[]
-data_a1_mov_avg_cumulative_vol_sell_stddev=[]
+import numpy as np
+from pyod.models.ocsvm import OCSVM
 
+def print_accuracy(train_arr,test_arr,trader_id):
+    if len(train_arr)==0 or len(test_arr)==0:
+        return
+    for i in range(len(train_arr)):
+        l1=len(train_arr[i])
+        l2=len(test_arr[i])
+        if l1==0 or l2==0:
+            continue
+        train_data=np.array([train_arr[i]]).T
+        test_data=np.array([test_arr[i]]).T
+        clf=OCSVM()
+        clf.fit(train_data)
+        y_pred=clf.predict(train_data)
+        print("TRAINING ACCURACY for TRADER",trader_id,":",100 - (sum(y_pred)*100/l1))
+        y_pred=clf.predict(test_data)
+        print("TESTING ACCURACY: ",sum(y_pred)*100/l2)
+
+malicious_keys=[]
+with open('attack.csv', 'r') as f1:
+    reader1 = list(csv.reader(f1))
+    reader1.pop(0)
+    for i in reader1:
+        with open('message.csv', 'r') as f:
+            reader = list(csv.reader(f))
+            trader_timestamp_dict={}
+            for row in range(1,len(reader)):
+                entry=reader[row]
+                time_stamp=entry[1][:-7]
+                entry_type=entry[2]
+                order_id=entry[3]
+                price=float(entry[4])
+                volume=float(entry[5])
+                direction=entry[6]
+                trader_id=entry[7]
+                stock_id=entry[8]
+                order_level=entry[9]
+                matched_order_trader_id=entry[10]
+                match_price=entry[11]
+                match_volume=entry[12]
+                match_timestamp=entry[13]
+                if order_id==i[1]:
+                    malicious_keys.append((time_stamp,trader_id))
+
+print(malicious_keys)
 
 
 def cumulative_sum(arr):
@@ -138,6 +95,8 @@ def draw_hist(x,strx,stry,tit):
         plt.hist(x,bins=20)
         #plt.savefig(tit.replace(' ','') + '_hist.png')
 
+traders=[]
+
 with open('message.csv', 'r') as f:
     reader = list(csv.reader(f))
     trader_timestamp_dict={}
@@ -156,6 +115,7 @@ with open('message.csv', 'r') as f:
         match_price=entry[11]
         match_volume=entry[12]
         match_timestamp=entry[13]
+        traders.append(trader_id)
         # print(time_stamp,direction,trader_id)
         if (time_stamp,trader_id) not in trader_timestamp_dict:
             trader_timestamp_dict[(time_stamp,trader_id)]={}
@@ -173,9 +133,107 @@ with open('message.csv', 'r') as f:
             trader_timestamp_dict[(time_stamp,trader_id)]['selling']['price'].append(price)
             trader_timestamp_dict[(time_stamp,trader_id)]['selling']['volume'].append(volume)
     # print(trader_timestamp_dict)
-    keys=list(trader_timestamp_dict.keys())
-    keys.sort()
+traders=list(set(traders))
+print(traders)
+keys=list(trader_timestamp_dict.keys())
+keys.sort()
+
+user_order=[]
+
+for j in traders:
+    data_a1_buy_stddev=[]
+    malicious_data_a1_buy_stddev=[]
+    data_a1_cumulative_buy_stddev=[]
+    data_a1_cumulative_mean_buy=[]
+    data_a1_cumulative_mean_sell=[]
+    data_a1_cumulative_sell_stddev=[]
+    data_a1_cumulative_sum_buy=[]
+    data_a1_cumulative_sum_sell=[]
+    data_a1_cumulative_vol_buy_stddev=[]
+    data_a1_cumulative_vol_mean_buy=[]
+    data_a1_cumulative_vol_mean_sell=[]
+    data_a1_cumulative_vol_sell_stddev=[]
+    data_a1_cumulative_vol_sum_buy=[]
+    data_a1_cumulative_vol_sum_sell=[]
+    data_a1_max_buy=[]
+    data_a1_max_sell=[]
+    data_a1_mean_buy=[]
+    data_a1_mean_sell=[]
+    data_a1_median_buy=[]
+    data_a1_median_sell=[]
+    data_a1_min_buy=[]
+    data_a1_min_sell=[]
+    data_a1_mov_avg_buy_stddev=[]
+    data_a1_mov_avg_cumulative_buy_stddev=[]
+    data_a1_mov_avg_cumulative_max_buy=[]
+    data_a1_mov_avg_cumulative_max_sell=[]
+    data_a1_mov_avg_cumulative_mean_buy=[]
+    data_a1_mov_avg_cumulative_mean_sell=[]
+    data_a1_mov_avg_cumulative_median_buy=[]
+    data_a1_mov_avg_cumulative_median_sell=[]
+    data_a1_mov_avg_cumulative_min_buy=[]
+    data_a1_mov_avg_cumulative_vol_min_sell=[]
+    data_a1_mov_avg_cumulative_sell_stddev=[]
+    data_a1_mov_avg_cumulative_vol_sum_buy=[]
+    data_a1_mov_avg_cumulative_vol_sum_sell=[]
+    data_a1_mov_avg_max_buy=[]
+    data_a1_mov_avg_max_sell=[]
+    data_a1_mov_avg_mean_buy=[]
+    data_a1_mov_avg_mean_sell=[]
+    data_a1_mov_avg_median_buy=[]
+    data_a1_mov_avg_median_sell=[]
+    data_a1_mov_avg_min_buy=[]
+    data_a1_mov_avg_min_sell=[]
+    data_a1_mov_avg_sell_stddev=[]
+    data_a1_mov_avg_sum_buy=[]
+    data_a1_mov_avg_sum_sell=[]
+    data_a1_mov_avg_vol_buy_stddev=[]
+    data_a1_mov_avg_vol_max_buy=[]
+    data_a1_mov_avg_vol_max_sell=[]
+    data_a1_mov_avg_vol_mean_buy=[]
+    data_a1_mov_avg_vol_mean_sell=[]
+    data_a1_mov_avg_cumulative_median_buy=[]
+    data_a1_mov_avg_cumulative_vol_median_sell=[]
+    data_a1_mov_avg_cumulative_vol_min_buy=[]
+    data_sum_buy=[]
+    data_sum_sell=[]
+    data_a1_vol_sum_buy=[]
+    data_a1_sell_stddev=[]
+    data_a1_vol_buy_stddev=[]
+    data_a1_vol_max_buy=[]
+    data_a1_vol_max_sell=[]
+    data_a1_vol_sum_sell=[]
+    data_a1_vol_sum_buy=[]
+    data_a1_vol_sell_stddev=[]
+    data_a1_vol_min_sell=[]
+    data_a1_vol_min_buy=[]
+    data_a1_vol_median_sell=[]
+    data_a1_vol_median_buy=[]
+    data_a1_vol_mean_sell=[]
+    data_a1_vol_mean_buy=[]
+    data_a1_vol_max_sell=[]
+    data_a1_vol_max_buy=[]
+    data_a1_mov_avg_vol_sum_sell=[]
+    data_a1_mov_avg_vol_sum_buy=[]
+    data_a1_mov_avg_vol_sell_stddev=[]
+    data_a1_mov_avg_vol_min_sell=[]
+    data_a1_mov_avg_vol_min_buy=[]
+    data_a1_mov_avg_vol_min_sell=[]
+    data_a1_mov_avg_vol_median_buy=[]
+    data_a1_mov_avg_vol_median_sell=[]
+    data_a1_mov_avg_cumulative_sum_buy=[]
+    data_a1_mov_avg_cumulative_sum_sell=[]
+    data_a1_mov_avg_cumulative_min_sell=[]
+    data_a1_mov_avg_cumulative_vol_max_buy=[]
+    data_a1_mov_avg_cumulative_vol_max_sell=[]
+    data_a1_mov_avg_cumulative_vol_mean_sell=[]
+    data_a1_mov_avg_cumulative_vol_mean_buy=[]
+    data_a1_mov_avg_cumulative_vol_median_buy=[]
+    data_a1_mov_avg_cumulative_vol_buy_stddev=[]
+    data_a1_mov_avg_cumulative_vol_sell_stddev=[]
+
     a1_sum_buy=[]
+    malicious_a1_sum_buy=[]
     a1_sum_sell=[]
     a1_timestamps=[]
     a1_min_buy=[]
@@ -211,13 +269,15 @@ with open('message.csv', 'r') as f:
     a1_vol_timestamps_sell_stddev=[]
     a1_vol_buy_stddev = []
     a1_vol_sell_stddev = []
-
-
     for i in keys:
-        # if i[1]=='T_3':
-        if True:
+        # print(i)
+        if i[1]==j:
+        # if True:
+            # user_order.append(i)
             a1_timestamps.append(i[0])
             a1_sum_buy.append(sum(trader_timestamp_dict[i]['buying']['price']))
+            if i in malicious_keys:
+                malicious_a1_sum_buy.append(sum(trader_timestamp_dict[i]['buying']['price']))
             a1_sum_sell.append(sum(trader_timestamp_dict[i]['selling']['price']))
             if  len((trader_timestamp_dict[i]['buying']['price']))>0:
                 a1_timestamps_buy.append(i[0])
@@ -258,40 +318,6 @@ with open('message.csv', 'r') as f:
             if  len((trader_timestamp_dict[i]['selling']['volume']))>1:
                 a1_vol_timestamps_sell_stddev.append(i[0])
                 a1_vol_sell_stddev.append(stdev(trader_timestamp_dict[i]['selling']['volume']))
-
-
-    #     try:
-    #         mean_buy_price=mean(trader_timestamp_dict[i]['buying']['price'])
-    #         mean_buy_volume=mean(trader_timestamp_dict[i]['buying']['volume'])
-    #         print(*i,"Buying Mean Price, Volume: ",mean_buy_price,mean_buy_volume)
-    #     except:
-    #         pass
-    #         # print(trader_timestamp_dict[i]['buying']['price'])
-    #     try:
-    #         stdev_buy_price=stdev(trader_timestamp_dict[i]['buying']['price'])
-    #         stdev_buy_volume=stdev(trader_timestamp_dict[i]['buying']['volume'])
-    #         print(*i,"Buying Stdev Price, Volume: ",stdev_buy_price,stdev_buy_volume)
-    #     except:
-    #         pass
-    #         # print(trader_timestamp_dict[i]['buying']['volume'])
-    #     try:
-    #         mean_sell_price=mean(trader_timestamp_dict[i]['selling']['price'])
-    #         mean_sell_volume=mean(trader_timestamp_dict[i]['selling']['volume'])
-    #         print(*i,"Selling Mean Price, Volume: ",mean_sell_price,mean_sell_volume)
-    #     except:
-    #         pass
-    #         # print(trader_timestamp_dict[i]['selling']['price'])
-    #     try:            
-    #         stdev_sell_price=stdev(trader_timestamp_dict[i]['selling']['price'])
-    #         stdev_sell_volume=stdev(trader_timestamp_dict[i]['selling']['volume'])
-    #         print(*i,"Selling Stdev Price, Volume: ",stdev_sell_price,stdev_sell_volume)
-    #     except:
-    #         pass
-    #         # print(trader_timestamp_dict[i]['selling']['volume'])
-
-    #     print(*i,"Buying orders number: ",len(trader_timestamp_dict[i]['buying']['price']),"Selling orders number: ",len(trader_timestamp_dict[i]['selling']['price']))
-    
-
     a1_cumulative_sum_buy = cumulative_sum(a1_sum_buy)
     a1_cumulative_sum_sell = cumulative_sum(a1_sum_sell)
     a1_cumulative_mean_sell = cumulative_sum(a1_mean_sell)
@@ -335,6 +361,8 @@ with open('message.csv', 'r') as f:
     # 4 Graphs of std-dev
     draw(a1_timestamps_buy_stddev, a1_buy_stddev , "time stamps" , "Std. deviation of buying price" , "Std. deviation of buying price of a trader w.r.t. time")
     data_a1_buy_stddev.append(a1_buy_stddev)
+    if i in malicious_keys:
+        malicious_data_a1_buy_stddev.append(a1_buy_stddev)
     draw(a1_timestamps_sell_stddev, a1_sell_stddev , "time stamps" , "Std. deviation of selling price" , "Std. deviation of selling price of a trader w.r.t. time")
     data_a1_sell_stddev.append(a1_sell_stddev)
     draw(a1_vol_timestamps_buy_stddev, a1_vol_buy_stddev , "time stamps" , "Std. deviation of buying volume" , "Std. deviation of buying volume of a trader w.r.t. time")
@@ -718,114 +746,7 @@ with open('message.csv', 'r') as f:
     a1_mov_avg_cumulative_vol_sell_stddev = moving_average(a1_cumulative_vol_sell_stddev,window_size)
     data_a1_mov_avg_cumulative_vol_sell_stddev.append(a1_mov_avg_cumulative_vol_sell_stddev)
 
-
-#   GRAPHS
-
-    draw2(a1_mov_avg_sum_buy , list(range(len(a1_mov_avg_sum_buy))), " " , "a1_mov_avg_sum_buy of T_3" , "a1_mov_avg_sum_buy of the trader")
-    draw2(a1_mov_avg_min_buy , list(range(len(a1_mov_avg_min_buy))), " " , "a1_mov_avg_min_buy of T_3" , "a1_mov_avg_min_buy of the trader")
-    draw2(a1_mov_avg_max_buy , list(range(len(a1_mov_avg_max_buy))), " " , "a1_mov_avg_max_buy of T_3" , "a1_mov_avg_max_buy of the trader")
-    draw2(a1_mov_avg_sum_sell , list(range(len(a1_mov_avg_sum_sell))), " " , "a1_mov_avg_sum_sell of T_3" , "a1_mov_avg_sum_sell of the trader")
-    draw2(a1_mov_avg_min_sell , list(range(len(a1_mov_avg_min_sell))), " " , "a1_mov_avg_min_sell of T_3" , "a1_mov_avg_min_sell of the trader")
-    draw2(a1_mov_avg_max_sell , list(range(len(a1_mov_avg_max_sell))), " " , "a1_mov_avg_max_sell of T_3" , "a1_mov_avg_max_sell of the trader")
-    draw2(a1_mov_avg_mean_sell , list(range(len(a1_mov_avg_mean_sell))), " " , "a1_mov_avg_mean_sell of T_3" , "a1_mov_avg_mean_sell of the trader")
-    draw2(a1_mov_avg_mean_buy , list(range(len(a1_mov_avg_mean_buy))), " " , "a1_mov_avg_mean_buy of T_3" , "a1_mov_avg_mean_buy of the trader")
-    draw2(a1_mov_avg_median_sell , list(range(len(a1_mov_avg_median_sell))), " " , "a1_mov_avg_median_sell of T_3" , "a1_mov_avg_median_sell of the trader")
-    draw2(a1_mov_avg_median_buy , list(range(len(a1_mov_avg_median_buy))), " " , "a1_mov_avg_median_buy of T_3" , "a1_mov_avg_median_buy of the trader")
-    draw2(a1_mov_avg_buy_stddev , list(range(len(a1_mov_avg_buy_stddev))), " " , "a1_mov_avg_buy_stddev of T_3" , "a1_mov_avg_buy_stddev of the trader")
-    draw2(a1_mov_avg_sell_stddev , list(range(len(a1_mov_avg_sell_stddev))), " " , "a1_mov_avg_sell_stddev of T_3" , "a1_mov_avg_sell_stddev of the trader")
-
-    draw2(a1_mov_avg_vol_sum_buy , list(range(len(a1_mov_avg_vol_sum_buy))), " " , "a1_mov_avg_vol_sum_buy of T_3", "a1_mov_avg_vol_sum_buy of the trader" )
-    draw2(a1_mov_avg_vol_min_buy , list(range(len(a1_mov_avg_vol_min_buy))), " " , "a1_mov_avg_vol_min_buy of T_3", "a1_mov_avg_vol_min_buy of the trader" )
-    draw2(a1_mov_avg_vol_max_buy , list(range(len(a1_mov_avg_vol_max_buy))), " " , "a1_mov_avg_vol_max_buy of T_3", "a1_mov_avg_vol_max_buy of the trader" )
-    draw2(a1_mov_avg_vol_sum_sell , list(range(len(a1_mov_avg_vol_sum_sell))), " " , "a1_mov_avg_vol_sum_sell of T_3", "a1_mov_avg_vol_sum_sell of the trader" )
-    draw2(a1_mov_avg_vol_min_sell , list(range(len(a1_mov_avg_vol_min_sell))), " " , "a1_mov_avg_vol_min_sell of T_3", "a1_mov_avg_vol_min_sell of the trader" )
-    draw2(a1_mov_avg_vol_max_sell , list(range(len(a1_mov_avg_vol_max_sell))), " " , "a1_mov_avg_vol_max_sell of T_3", "a1_mov_avg_vol_max_sell of the trader" )
-    draw2(a1_mov_avg_vol_mean_sell , list(range(len(a1_mov_avg_vol_mean_sell))), " " , "a1_mov_avg_vol_mean_sell of T_3", "a1_mov_avg_vol_mean_sell of the trader" )
-    draw2(a1_mov_avg_vol_mean_buy , list(range(len(a1_mov_avg_vol_mean_buy))), " " , "a1_mov_avg_vol_mean_buy of T_3", "a1_mov_avg_vol_mean_buy of the trader" )
-    draw2(a1_mov_avg_vol_median_sell , list(range(len(a1_mov_avg_vol_median_sell))), " " , "a1_mov_avg_vol_median_sell of T_3", "a1_mov_avg_vol_median_sell of the trader" )
-    draw2(a1_mov_avg_vol_median_buy , list(range(len(a1_mov_avg_vol_median_buy))), " " , "a1_mov_avg_vol_median_buy of T_3", "a1_mov_avg_vol_median_buy of the trader" )
-    draw2(a1_mov_avg_vol_buy_stddev , list(range(len(a1_mov_avg_vol_buy_stddev))), " " , "a1_mov_avg_vol_buy_stddev of T_3", "a1_mov_avg_vol_buy_stddev of the trader" )
-    draw2(a1_mov_avg_vol_sell_stddev , list(range(len(a1_mov_avg_vol_sell_stddev))), " " , "a1_mov_avg_vol_sell_stddev of T_3", "a1_mov_avg_vol_sell_stddev of the trader" )
-
-    draw2(a1_mov_avg_cumulative_sum_buy , list(range(len(a1_mov_avg_cumulative_sum_buy))), " " , "a1_mov_avg_cumulative_sum_buy of T_3", "a1_mov_avg_cumulative_sum_buy of the trader" )
-    draw2(a1_mov_avg_cumulative_min_buy , list(range(len(a1_mov_avg_cumulative_min_buy))), " " , "a1_mov_avg_cumulative_min_buy of T_3", "a1_mov_avg_cumulative_min_buy of the trader" )
-    draw2(a1_mov_avg_cumulative_max_buy , list(range(len(a1_mov_avg_cumulative_max_buy))), " " , "a1_mov_avg_cumulative_max_buy of T_3", "a1_mov_avg_cumulative_max_buy of the trader" )
-    draw2(a1_mov_avg_cumulative_sum_sell , list(range(len(a1_mov_avg_cumulative_sum_sell))), " " , "a1_mov_avg_cumulative_sum_sell of T_3", "a1_mov_avg_cumulative_sum_sell of the trader" )
-    draw2(a1_mov_avg_cumulative_min_sell , list(range(len(a1_mov_avg_cumulative_min_sell))), " " , "a1_mov_avg_cumulative_min_sell of T_3", "a1_mov_avg_cumulative_min_sell of the trader" )
-    draw2(a1_mov_avg_cumulative_max_sell , list(range(len(a1_mov_avg_cumulative_max_sell))), " " , "a1_mov_avg_cumulative_max_sell of T_3", "a1_mov_avg_cumulative_max_sell of the trader" )
-    draw2(a1_mov_avg_cumulative_mean_sell , list(range(len(a1_mov_avg_cumulative_mean_sell))), " " , "a1_mov_avg_cumulative_mean_sell of T_3", "a1_mov_avg_cumulative_mean_sell of the trader" )
-    draw2(a1_mov_avg_cumulative_mean_buy , list(range(len(a1_mov_avg_cumulative_mean_buy))), " " , "a1_mov_avg_cumulative_mean_buy of T_3", "a1_mov_avg_cumulative_mean_buy of the trader" )
-    draw2(a1_mov_avg_cumulative_median_sell , list(range(len(a1_mov_avg_cumulative_median_sell))), " " , "a1_mov_avg_cumulative_median_sell of T_3", "a1_mov_avg_cumulative_median_sell of the trader" )
-    draw2(a1_mov_avg_cumulative_median_buy , list(range(len(a1_mov_avg_cumulative_median_buy))), " " , "a1_mov_avg_cumulative_median_buy of T_3", "a1_mov_avg_cumulative_median_buy of the trader" )
-    draw2(a1_mov_avg_cumulative_buy_stddev , list(range(len(a1_mov_avg_cumulative_buy_stddev))), " " , "a1_mov_avg_cumulative_buy_stddev of T_3", "a1_mov_avg_cumulative_buy_stddev of the trader" )
-    draw2(a1_mov_avg_cumulative_sell_stddev , list(range(len(a1_mov_avg_cumulative_sell_stddev))), " " , "a1_mov_avg_cumulative_sell_stddev of T_3", "a1_mov_avg_cumulative_sell_stddev of the trader" )
-
-    draw2(a1_mov_avg_cumulative_vol_sum_buy , list(range(len(a1_mov_avg_cumulative_vol_sum_buy))), " " , "a1_mov_avg_cumulative_vol_sum_buy of T_3", "a1_mov_avg_cumulative_vol_sum_buy of the trader" )
-    draw2(a1_mov_avg_cumulative_vol_min_buy , list(range(len(a1_mov_avg_cumulative_vol_min_buy))), " " , "a1_mov_avg_cumulative_vol_min_buy of T_3", "a1_mov_avg_cumulative_vol_min_buy of the trader" )
-    draw2(a1_mov_avg_cumulative_vol_max_buy , list(range(len(a1_mov_avg_cumulative_vol_max_buy))), " " , "a1_mov_avg_cumulative_vol_max_buy of T_3", "a1_mov_avg_cumulative_vol_max_buy of the trader" )
-    draw2(a1_mov_avg_cumulative_vol_sum_sell , list(range(len(a1_mov_avg_cumulative_vol_sum_sell))), " " , "a1_mov_avg_cumulative_vol_sum_sell of T_3", "a1_mov_avg_cumulative_vol_sum_sell of the trader" )
-    draw2(a1_mov_avg_cumulative_vol_min_sell , list(range(len(a1_mov_avg_cumulative_vol_min_sell))), " " , "a1_mov_avg_cumulative_vol_min_sell of T_3", "a1_mov_avg_cumulative_vol_min_sell of the trader" )
-    draw2(a1_mov_avg_cumulative_vol_max_sell , list(range(len(a1_mov_avg_cumulative_vol_max_sell))), " " , "a1_mov_avg_cumulative_vol_max_sell of T_3", "a1_mov_avg_cumulative_vol_max_sell of the trader" )
-    draw2(a1_mov_avg_cumulative_vol_mean_sell , list(range(len(a1_mov_avg_cumulative_vol_mean_sell))), " " , "a1_mov_avg_cumulative_vol_mean_sell of T_3", "a1_mov_avg_cumulative_vol_mean_sell of the trader" )
-    draw2(a1_mov_avg_cumulative_vol_mean_buy , list(range(len(a1_mov_avg_cumulative_vol_mean_buy))), " " , "a1_mov_avg_cumulative_vol_mean_buy of T_3", "a1_mov_avg_cumulative_vol_mean_buy of the trader" )
-    draw2(a1_mov_avg_cumulative_vol_median_sell , list(range(len(a1_mov_avg_cumulative_vol_median_sell))), " " , "a1_mov_avg_cumulative_vol_median_sell of T_3", "a1_mov_avg_cumulative_vol_median_sell of the trader" )
-    draw2(a1_mov_avg_cumulative_vol_median_buy , list(range(len(a1_mov_avg_cumulative_vol_median_buy))), " " , "a1_mov_avg_cumulative_vol_median_buy of T_3", "a1_mov_avg_cumulative_vol_median_buy of the trader" )
-    draw2(a1_mov_avg_cumulative_vol_buy_stddev , list(range(len(a1_mov_avg_cumulative_vol_buy_stddev))), " " , "a1_mov_avg_cumulative_vol_buy_stddev of T_3", "a1_mov_avg_cumulative_vol_buy_stddev of the trader" )
-    draw2(a1_mov_avg_cumulative_vol_sell_stddev , list(range(len(a1_mov_avg_cumulative_vol_sell_stddev))), " " , "a1_mov_avg_cumulative_vol_sell_stddev of T_3", "a1_mov_avg_cumulative_vol_sell_stddev of the trader" )
-    
-#   HISTOGRAM
-
-    draw_hist(a1_mov_avg_sum_buy ," " , "a1_mov_avg_sum_buy of T_3" , "a1_mov_avg_sum_buy of the trader")
-    draw_hist(a1_mov_avg_min_buy ," " , "a1_mov_avg_min_buy of T_3" , "a1_mov_avg_min_buy of the trader")
-    draw_hist(a1_mov_avg_max_buy ," " , "a1_mov_avg_max_buy of T_3" , "a1_mov_avg_max_buy of the trader")
-    draw_hist(a1_mov_avg_sum_sell, " " , "a1_mov_avg_sum_sell of T_3" , "a1_mov_avg_sum_sell of the trader")
-    draw_hist(a1_mov_avg_min_sell , " " , "a1_mov_avg_min_sell of T_3" , "a1_mov_avg_min_sell of the trader")
-    draw_hist(a1_mov_avg_max_sell , " " , "a1_mov_avg_max_sell of T_3" , "a1_mov_avg_max_sell of the trader")
-    draw_hist(a1_mov_avg_mean_sell , " " , "a1_mov_avg_mean_sell of T_3" , "a1_mov_avg_mean_sell of the trader")
-    draw_hist(a1_mov_avg_mean_buy ,  " " , "a1_mov_avg_mean_buy of T_3" , "a1_mov_avg_mean_buy of the trader")
-    draw_hist(a1_mov_avg_median_sell , " " , "a1_mov_avg_median_sell of T_3" , "a1_mov_avg_median_sell of the trader")
-    draw_hist(a1_mov_avg_median_buy ,  " " , "a1_mov_avg_median_buy of T_3" , "a1_mov_avg_median_buy of the trader")
-    draw_hist(a1_mov_avg_buy_stddev ,  " " , "a1_mov_avg_buy_stddev of T_3" , "a1_mov_avg_buy_stddev of the trader")
-    draw_hist(a1_mov_avg_sell_stddev , " " , "a1_mov_avg_sell_stddev of T_3" , "a1_mov_avg_sell_stddev of the trader")
+    print_accuracy([a1_sum_buy],[malicious_a1_sum_buy],j)
 
 
-
-    draw_hist(a1_mov_avg_vol_sum_buy , " " , "a1_mov_avg_vol_sum_buy of T_3", "a1_mov_avg_vol_sum_buy of the trader" )
-    draw_hist(a1_mov_avg_vol_min_buy , " " , "a1_mov_avg_vol_min_buy of T_3", "a1_mov_avg_vol_min_buy of the trader" )
-    draw_hist(a1_mov_avg_vol_max_buy , " " , "a1_mov_avg_vol_max_buy of T_3", "a1_mov_avg_vol_max_buy of the trader" )
-    draw_hist(a1_mov_avg_vol_sum_sell , " " , "a1_mov_avg_vol_sum_sell of T_3", "a1_mov_avg_vol_sum_sell of the trader" )
-    draw_hist(a1_mov_avg_vol_min_sell , " " , "a1_mov_avg_vol_min_sell of T_3", "a1_mov_avg_vol_min_sell of the trader" )
-    draw_hist(a1_mov_avg_vol_max_sell , " " , "a1_mov_avg_vol_max_sell of T_3", "a1_mov_avg_vol_max_sell of the trader" )
-    draw_hist(a1_mov_avg_vol_mean_sell , " " , "a1_mov_avg_vol_mean_sell of T_3", "a1_mov_avg_vol_mean_sell of the trader" )
-    draw_hist(a1_mov_avg_vol_mean_buy ,  " " , "a1_mov_avg_vol_mean_buy of T_3", "a1_mov_avg_vol_mean_buy of the trader" )
-    draw_hist(a1_mov_avg_vol_median_sell , " " , "a1_mov_avg_vol_median_sell of T_3", "a1_mov_avg_vol_median_sell of the trader" )
-    draw_hist(a1_mov_avg_vol_median_buy ,  " " , "a1_mov_avg_vol_median_buy of T_3", "a1_mov_avg_vol_median_buy of the trader" )
-    draw_hist(a1_mov_avg_vol_buy_stddev ,  " " , "a1_mov_avg_vol_buy_stddev of T_3", "a1_mov_avg_vol_buy_stddev of the trader" )
-    draw_hist(a1_mov_avg_vol_sell_stddev , " " , "a1_mov_avg_vol_sell_stddev of T_3", "a1_mov_avg_vol_sell_stddev of the trader" )
-
-    draw_hist(a1_mov_avg_cumulative_sum_buy , " " , "a1_mov_avg_cumulative_sum_buy of T_3", "a1_mov_avg_cumulative_sum_buy of the trader" )
-    draw_hist(a1_mov_avg_cumulative_min_buy , " " , "a1_mov_avg_cumulative_min_buy of T_3", "a1_mov_avg_cumulative_min_buy of the trader" )
-    draw_hist(a1_mov_avg_cumulative_max_buy , " " , "a1_mov_avg_cumulative_max_buy of T_3", "a1_mov_avg_cumulative_max_buy of the trader" )
-    draw_hist(a1_mov_avg_cumulative_sum_sell , " " , "a1_mov_avg_cumulative_sum_sell of T_3", "a1_mov_avg_cumulative_sum_sell of the trader" )
-    draw_hist(a1_mov_avg_cumulative_min_sell , " " , "a1_mov_avg_cumulative_min_sell of T_3", "a1_mov_avg_cumulative_min_sell of the trader" )
-    draw_hist(a1_mov_avg_cumulative_max_sell , " " , "a1_mov_avg_cumulative_max_sell of T_3", "a1_mov_avg_cumulative_max_sell of the trader" )
-    draw_hist(a1_mov_avg_cumulative_mean_sell , " " , "a1_mov_avg_cumulative_mean_sell of T_3", "a1_mov_avg_cumulative_mean_sell of the trader" )
-    draw_hist(a1_mov_avg_cumulative_mean_buy ,  " " , "a1_mov_avg_cumulative_mean_buy of T_3", "a1_mov_avg_cumulative_mean_buy of the trader" )
-    draw_hist(a1_mov_avg_cumulative_median_sell , " " , "a1_mov_avg_cumulative_median_sell of T_3", "a1_mov_avg_cumulative_median_sell of the trader" )
-    draw_hist(a1_mov_avg_cumulative_median_buy ,  " " , "a1_mov_avg_cumulative_median_buy of T_3", "a1_mov_avg_cumulative_median_buy of the trader" )
-    draw_hist(a1_mov_avg_cumulative_buy_stddev ,  " " , "a1_mov_avg_cumulative_buy_stddev of T_3", "a1_mov_avg_cumulative_buy_stddev of the trader" )
-    draw_hist(a1_mov_avg_cumulative_sell_stddev , " " , "a1_mov_avg_cumulative_sell_stddev of T_3", "a1_mov_avg_cumulative_sell_stddev of the trader" )
-
-    draw_hist(a1_mov_avg_cumulative_vol_sum_buy , " " , "a1_mov_avg_cumulative_vol_sum_buy of T_3", "a1_mov_avg_cumulative_vol_sum_buy of the trader" )
-    draw_hist(a1_mov_avg_cumulative_vol_min_buy , " " , "a1_mov_avg_cumulative_vol_min_buy of T_3", "a1_mov_avg_cumulative_vol_min_buy of the trader" )
-    draw_hist(a1_mov_avg_cumulative_vol_max_buy , " " , "a1_mov_avg_cumulative_vol_max_buy of T_3", "a1_mov_avg_cumulative_vol_max_buy of the trader" )
-    draw_hist(a1_mov_avg_cumulative_vol_sum_sell , " " , "a1_mov_avg_cumulative_vol_sum_sell of T_3", "a1_mov_avg_cumulative_vol_sum_sell of the trader" )
-    draw_hist(a1_mov_avg_cumulative_vol_min_sell , " " , "a1_mov_avg_cumulative_vol_min_sell of T_3", "a1_mov_avg_cumulative_vol_min_sell of the trader" )
-    draw_hist(a1_mov_avg_cumulative_vol_max_sell , " " , "a1_mov_avg_cumulative_vol_max_sell of T_3", "a1_mov_avg_cumulative_vol_max_sell of the trader" )
-    draw_hist(a1_mov_avg_cumulative_vol_mean_sell , " " , "a1_mov_avg_cumulative_vol_mean_sell of T_3", "a1_mov_avg_cumulative_vol_mean_sell of the trader" )
-    draw_hist(a1_mov_avg_cumulative_vol_mean_buy ,  " " , "a1_mov_avg_cumulative_vol_mean_buy of T_3", "a1_mov_avg_cumulative_vol_mean_buy of the trader" )
-    draw_hist(a1_mov_avg_cumulative_vol_median_sell , " " , "a1_mov_avg_cumulative_vol_median_sell of T_3", "a1_mov_avg_cumulative_vol_median_sell of the trader" )
-    draw_hist(a1_mov_avg_cumulative_vol_median_buy ,  " " , "a1_mov_avg_cumulative_vol_median_buy of T_3", "a1_mov_avg_cumulative_vol_median_buy of the trader" )
-    draw_hist(a1_mov_avg_cumulative_vol_buy_stddev ,  " " , "a1_mov_avg_cumulative_vol_buy_stddev of T_3", "a1_mov_avg_cumulative_vol_buy_stddev of the trader" )
-    draw_hist(a1_mov_avg_cumulative_vol_sell_stddev , " " , "a1_mov_avg_cumulative_vol_sell_stddev of T_3", "a1_mov_avg_cumulative_vol_sell_stddev of the trader" )
-    
+# print_accuracy(data_a1_buy_stddev,data_a1_buy_stddev)
