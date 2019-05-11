@@ -48,7 +48,7 @@ with open('attack.csv', 'r') as f1:
                 if order_id==i[1]:
                     malicious_keys.append((time_stamp,trader_id))
 
-print(malicious_keys)
+# print(malicious_keys)
 
 
 def cumulative_sum(arr):
@@ -134,7 +134,7 @@ with open('message.csv', 'r') as f:
             trader_timestamp_dict[(time_stamp,trader_id)]['selling']['volume'].append(volume)
     # print(trader_timestamp_dict)
 traders=list(set(traders))
-print(traders)
+# print(traders)
 keys=list(trader_timestamp_dict.keys())
 keys.sort()
 

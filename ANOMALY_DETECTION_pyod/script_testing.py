@@ -5,7 +5,7 @@ import csv
 import numpy as np
 from pyod.models.ocsvm import OCSVM
 
-def print_accuracy(train_arr,test_arr,trader_id):
+def print_accuracy(test_arr,train_arr,trader_id,feature):
     if len(train_arr)==0 or len(test_arr)==0:
         return
     for i in range(len(train_arr)):
@@ -18,9 +18,9 @@ def print_accuracy(train_arr,test_arr,trader_id):
         clf=OCSVM()
         clf.fit(train_data)
         y_pred=clf.predict(train_data)
-        print("TRAINING ACCURACY for TRADER",trader_id,":",100 - (sum(y_pred)*100/l1))
+        print("FEATURE:",feature,"TRAINING ACCURACY for TRADER",trader_id,":",100 - (sum(y_pred)*100/l1))
         y_pred=clf.predict(test_data)
-        print("TESTING ACCURACY: ",sum(y_pred)*100/l2)
+        print("FEATURE:",feature,"TESTING ACCURACY: ",sum(y_pred)*100/l2)
 
 malicious_keys=[]
 with open('attack.csv', 'r') as f1:
@@ -48,7 +48,7 @@ with open('attack.csv', 'r') as f1:
                 if order_id==i[1]:
                     malicious_keys.append((time_stamp,trader_id))
 
-print(malicious_keys)
+# print(malicious_keys)
 
 
 def cumulative_sum(arr):
@@ -134,7 +134,7 @@ with open('message.csv', 'r') as f:
             trader_timestamp_dict[(time_stamp,trader_id)]['selling']['volume'].append(volume)
     # print(trader_timestamp_dict)
 traders=list(set(traders))
-print(traders)
+# print(traders)
 keys=list(trader_timestamp_dict.keys())
 keys.sort()
 
@@ -810,7 +810,56 @@ for j in traders:
     a1_mov_avg_cumulative_vol_sell_stddev = moving_average(a1_cumulative_vol_sell_stddev,window_size)
     data_a1_mov_avg_cumulative_vol_sell_stddev.append(a1_mov_avg_cumulative_vol_sell_stddev)
 
-    print_accuracy([a1_sum_buy],[malicious_a1_sum_buy],j)
+    # print("SUM BUY")
+    print_accuracy([malicious_a1_sum_buy],[a1_sum_buy],j,"SUM BUY")
+    # print("SUM SELL")
+    print_accuracy([malicious_a1_sum_sell],[a1_sum_sell],j,"SUM SELL")
+    # print("SUM MIN BUY")
+    print_accuracy([malicious_a1_min_buy],[a1_min_buy],j,"SUM MIN BUY")
+    # print("MAX BUY")
+    print_accuracy([malicious_a1_max_buy],[a1_max_buy],j,"MAX BUY")
+    # print("MIN SELL")
+    print_accuracy([malicious_a1_min_sell],[a1_min_sell],j,"MIN SELL")
+    # print("MAX SELL")
+    print_accuracy([malicious_a1_max_sell],[a1_max_sell],j,"MAX SELL")
+    # print("MEAN SELL")
+    print_accuracy([malicious_a1_mean_sell],[a1_mean_sell],j,"MEAN SELL")
+    # print("MEAN BUY")
+    print_accuracy([malicious_a1_mean_buy],[a1_mean_buy],j,"MEAN BUY")
+    # print("MEDIAN SELL")
+    print_accuracy([malicious_a1_median_sell],[a1_median_sell],j,"MEDIAN SELL")
+    # print("MEDIAN BUY")
+    print_accuracy([malicious_a1_median_buy],[a1_median_buy],j,"MEDIAN BUY")
+    # print("STDEV SELL")
+    print_accuracy([malicious_a1_stddev_sell],[a1_sell_stddev],j,"STDEV SELL")
+    # print("STDEV BUY")
+    print_accuracy([malicious_a1_stddev_buy],[a1_buy_stddev],j,"STDEV BUY")
+
+    # print("VOL SUM BUY")
+    print_accuracy([malicious_a1_sum_buy_vol],[a1_vol_sum_buy],j,"VOL SUM BUY")
+    # print("VOL SUM SELL")
+    print_accuracy([malicious_a1_sum_sell_vol],[a1_vol_sum_sell],j,"VOL SUM SELL")
+    # print("VOL MIN BUY")
+    print_accuracy([malicious_a1_min_buy_vol],[a1_vol_min_buy],j,"VOL MIN BUY")
+    # print("VOL MAX BUY")
+    print_accuracy([malicious_a1_max_buy_vol],[a1_vol_max_buy],j,"VOL MAX BUY")
+    # print("VOL MIN SELL")
+    print_accuracy([malicious_a1_min_sell_vol],[a1_vol_min_sell],j,"VOL MIN SELL")
+    # print("VOL MAX SELL")
+    print_accuracy([malicious_a1_max_sell_vol],[a1_vol_max_sell],j,"VOL MAX SELL")
+    # print("VOL MEAN SELL")
+    print_accuracy([malicious_a1_mean_sell_vol],[a1_vol_mean_sell],j,"VOL MEAN SELL")
+    # print("VOL MEAN BUY")
+    print_accuracy([malicious_a1_mean_buy_vol],[a1_vol_mean_buy],j,"VOL MEAN BUY")
+    # print("VOL MEDIAN SELL")
+    print_accuracy([malicious_a1_median_sell_vol],[a1_vol_median_sell],j,"VOL MEDIAN SELL")
+    # print("VOL MEDIAN BUY")
+    print_accuracy([malicious_a1_median_buy_vol],[a1_vol_median_buy],j,"VOL MEDIAN BUY")
+    # print("VOL STDEV SELL")
+    print_accuracy([malicious_a1_stddev_sell_vol],[a1_vol_sell_stddev],j,"VOL STDEV SELL")
+    # print("VOL STDEV BUY")
+    print_accuracy([malicious_a1_stddev_buy_vol],[a1_vol_stddev_buy],j,"VOL STDEV BUY")
+
 
 
 # print_accuracy(data_a1_buy_stddev,data_a1_buy_stddev)
