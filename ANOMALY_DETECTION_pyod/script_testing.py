@@ -293,6 +293,29 @@ for j in traders:
     a1_vol_timestamps_sell_stddev=[]
     a1_vol_buy_stddev = []
     a1_vol_sell_stddev = []
+
+    malicious_a1_cumulative_sum_buy=[]
+    malicious_a1_cumulative_sum_sell=[]
+    malicious_a1_cumulative_min_buy=[]
+    malicious_a1_cumulative_min_sell=[]
+    malicious_a1_cumulative_max_buy=[]
+    malicious_a1_cumulative_max_sell=[]
+    malicious_a1_cumulative_median_buy=[]
+    malicious_a1_cumulative_median_sell=[]
+    malicious_a1_cumulative_buy_stddev=[]
+    malicious_a1_cumulative_sell_stddev=[]
+
+    malicious_a1_cumulative_vol_sum_buy=[]
+    malicious_a1_cumulative_vol_sum_sell=[]
+    malicious_a1_cumulative_vol_min_buy=[]
+    malicious_a1_cumulative_vol_min_sell=[]
+    malicious_a1_cumulative_vol_max_buy=[]
+    malicious_a1_cumulative_vol_max_sell=[]
+    malicious_a1_cumulative_vol_median_buy=[]
+    malicious_a1_cumulative_vol_median_sell=[]
+    malicious_a1_cumulative_vol_buy_stddev=[]
+    malicious_a1_cumulative_vol_sell_stddev=[]
+
     for i in keys:
         # print(i)
         if i[1]==j:
@@ -305,7 +328,6 @@ for j in traders:
                 malicious_a1_sum_buy.append(sum(trader_timestamp_dict[i]['buying']['price']))
                 malicious_a1_sum_sell.append(sum(trader_timestamp_dict[i]['selling']['price']))
             if  len((trader_timestamp_dict[i]['buying']['price']))>0:
-                
                 a1_timestamps_buy.append(i[0])
                 a1_mean_buy.append(mean(trader_timestamp_dict[i]['buying']['price']))
                 a1_median_buy.append(median(trader_timestamp_dict[i]['buying']['price']))
@@ -317,7 +339,6 @@ for j in traders:
                     malicious_a1_min_buy.append(min(trader_timestamp_dict[i]['buying']['price']))
                     malicious_a1_max_buy.append(max(trader_timestamp_dict[i]['buying']['price']))
             if  len((trader_timestamp_dict[i]['selling']['price']))>0:
-                
                 a1_timestamps_sell.append(i[0])
                 a1_mean_sell.append(mean(trader_timestamp_dict[i]['selling']['price']))
                 a1_median_sell.append(median(trader_timestamp_dict[i]['selling']['price']))
@@ -340,11 +361,7 @@ for j in traders:
                     malicious_a1_stddev_sell.append(stdev(trader_timestamp_dict[i]['selling']['price']))
 
 
-
-
 #  Volume computations
-
-
             a1_vol_sum_buy.append(sum(trader_timestamp_dict[i]['buying']['volume']))
             a1_vol_sum_sell.append(sum(trader_timestamp_dict[i]['selling']['volume']))
             if i in malicious_keys:
@@ -409,6 +426,84 @@ for j in traders:
     a1_cumulative_vol_max_sell = cumulative_sum(a1_vol_max_sell)
 
 
+    for z in malicious_keys:
+        if z[1]==j:
+            t_stamp=z[0]
+            try:
+                idx=a1_timestamps.index(t_stamp)
+                if idx>=0:
+                    malicious_a1_cumulative_sum_buy.append(a1_cumulative_sum_buy[idx])
+                    malicious_a1_cumulative_sum_sell.append(a1_cumulative_sum_sell[idx])
+            except:
+                pass
+            try:
+                idx=a1_timestamps_buy.index(t_stamp)
+                if idx>=0:
+                    malicious_a1_cumulative_mean_buy.append(a1_cumulative_mean_buy[idx])
+                    malicious_a1_cumulative_median_buy.append(a1_cumulative_median_buy[idx])
+                    malicious_a1_cumulative_min_buy.append(a1_cumulative_min_buy[idx])
+                    malicious_a1_cumulative_max_buy.append(a1_cumulative_max_buy[idx])
+            except:
+                pass
+            try:
+                idx=a1_timestamps_sell.index(t_stamp)
+                if idx>=0:
+                    malicious_a1_cumulative_mean_sell.append(a1_cumulative_mean_buy[idx])
+                    malicious_a1_cumulative_median_sell.append(a1_cumulative_median_buy[idx])
+                    malicious_a1_cumulative_min_sell.append(a1_cumulative_min_sell[idx])
+                    malicious_a1_cumulative_max_sell.append(a1_cumulative_max_sell[idx])
+            except:
+                pass
+            try:
+                idx=a1_timestamps_buy_stddev.index(t_stamp)
+                if idx>=0:
+                    malicious_a1_cumulative_buy_stddev.append(a1_cumulative_buy_stddev[idx])
+            except:
+                pass
+            try:
+                idx=a1_timestamps_sell_stddev.index(t_stamp)
+                if idx>=0:
+                    malicious_a1_cumulative_sell_stddev.append(a1_cumulative_sell_stddev[idx])
+            except:
+                pass
+
+            try:
+                idx=a1_vol_timestamps.index(t_stamp)
+                if idx>=0:
+                    malicious_a1_cumulative_vol_sum_buy.append(a1_cumulative_vol_sum_buy[idx])
+                    malicious_a1_cumulative_vol_sum_sell.append(a1_cumulative_vol_sum_sell[idx])
+            except:
+                pass
+            try:
+                idx=a1_vol_timestamps_buy.index(t_stamp)
+                if idx>=0:
+                    malicious_a1_cumulative_vol_mean_buy.append(a1_cumulative_vol_mean_buy[idx])
+                    malicious_a1_cumulative_vol_median_buy.append(a1_cumulative_vol_median_buy[idx])
+                    malicious_a1_cumulative_vol_min_buy.append(a1_cumulative_vol_min_buy[idx])
+                    malicious_a1_cumulative_vol_max_buy.append(a1_cumulative_vol_max_buy[idx])
+            except:
+                pass
+            try:
+                idx=a1_vol_timestamps_sell.index(t_stamp)
+                if idx>=0:
+                    malicious_a1_cumulative_vol_mean_sell.append(a1_cumulative_vol_mean_buy[idx])
+                    malicious_a1_cumulative_vol_median_sell.append(a1_cumulative_vol_median_buy[idx])
+                    malicious_a1_cumulative_vol_min_sell.append(a1_cumulative_vol_min_sell[idx])
+                    malicious_a1_cumulative_vol_max_sell.append(a1_cumulative_vol_max_sell[idx])
+            except:
+                pass
+            try:
+                idx=a1_vol_timestamps_buy_stddev.index(t_stamp)
+                if idx>=0:
+                    malicious_a1_cumulative_vol_buy_stddev.append(a1_cumulative_vol_buy_stddev[idx])
+            except:
+                pass
+            try:
+                idx=a1_vol_timestamps_sell_stddev.index(t_stamp)
+                if idx>=0:
+                    malicious_a1_cumulative_vol_sell_stddev.append(a1_cumulative_vol_sell_stddev[idx])
+            except:
+                pass
 
     # GRAPHS
 
@@ -711,6 +806,7 @@ for j in traders:
     window_size = 5
 
     a1_mov_avg_sum_buy = moving_average(a1_sum_buy,window_size)
+
     data_a1_mov_avg_sum_buy.append(a1_mov_avg_sum_buy)
     a1_mov_avg_min_buy = moving_average(a1_min_buy,window_size)
     data_a1_mov_avg_min_buy.append(a1_mov_avg_min_buy)
@@ -860,6 +956,26 @@ for j in traders:
     # print("VOL STDEV BUY")
     print_accuracy([malicious_a1_stddev_buy_vol],[a1_vol_stddev_buy],j,"VOL STDEV BUY")
 
+    print_accuracy([malicious_a1_cumulative_sum_buy],[a1_cumulative_sum_buy],j,"CUMULATIVE SUM BUY")
+    print_accuracy([malicious_a1_cumulative_sum_sell],[a1_cumulative_sum_sell],j,"CUMULATIVE SUM SELL")
+    print_accuracy([malicious_a1_cumulative_min_buy],[a1_cumulative_min_buy],j,"CUMULATIVE MIN BUY")
+    print_accuracy([malicious_a1_cumulative_min_sell],[a1_cumulative_min_sell],j,"CUMULATIVE MIN SELL")
+    print_accuracy([malicious_a1_cumulative_max_buy],[a1_cumulative_max_buy],j,"CUMULATIVE MAX BUY")
+    print_accuracy([malicious_a1_cumulative_max_sell],[a1_cumulative_max_sell],j,"CUMULATIVE MAX SELL")
+    print_accuracy([malicious_a1_cumulative_median_buy],[a1_cumulative_median_buy],j,"CUMULATIVE MEDIAN BUY")
+    print_accuracy([malicious_a1_cumulative_median_sell],[a1_cumulative_median_sell],j,"CUMULATIVE MEDIAN SELL")
+    print_accuracy([malicious_a1_cumulative_buy_stddev],[a1_cumulative_buy_stddev],j,"CUMULATIVE STDEV BUY")
+    print_accuracy([malicious_a1_cumulative_sell_stddev],[a1_cumulative_sell_stddev],j,"CUMULATIVE STDEV SELL")
 
+    print_accuracy([malicious_a1_cumulative_vol_sum_buy],[a1_cumulative_vol_sum_buy],j,"CUMULATIVE SUM BUY")
+    print_accuracy([malicious_a1_cumulative_vol_sum_sell],[a1_cumulative_vol_sum_sell],j,"CUMULATIVE SUM SELL")
+    print_accuracy([malicious_a1_cumulative_vol_min_buy],[a1_cumulative_vol_min_buy],j,"CUMULATIVE MIN BUY")
+    print_accuracy([malicious_a1_cumulative_vol_min_sell],[a1_cumulative_vol_min_sell],j,"CUMULATIVE MIN SELL")
+    print_accuracy([malicious_a1_cumulative_vol_max_buy],[a1_cumulative_vol_max_buy],j,"CUMULATIVE MAX BUY")
+    print_accuracy([malicious_a1_cumulative_vol_max_sell],[a1_cumulative_vol_max_sell],j,"CUMULATIVE MAX SELL")
+    print_accuracy([malicious_a1_cumulative_vol_median_buy],[a1_cumulative_vol_median_buy],j,"CUMULATIVE MEDIAN BUY")
+    print_accuracy([malicious_a1_cumulative_vol_median_sell],[a1_cumulative_vol_median_sell],j,"CUMULATIVE MEDIAN SELL")
+    print_accuracy([malicious_a1_cumulative_vol_buy_stddev],[a1_cumulative_vol_buy_stddev],j,"CUMULATIVE STDEV BUY")
+    print_accuracy([malicious_a1_cumulative_vol_sell_stddev],[a1_cumulative_vol_sell_stddev],j,"CUMULATIVE STDEV SELL")
 
 # print_accuracy(data_a1_buy_stddev,data_a1_buy_stddev)
