@@ -5,8 +5,8 @@ import csv
 import numpy as np
 from pyod.models.ocsvm import OCSVM
 
-def print_accuracy(test_arr,train_arr,trader_id,feature):
-    if len(train_arr)==0 or len(test_arr)==0:
+def print_accuracy(test_arr,train_arr,trader_id,feature,timestamps):
+    if len(train_arr)==0:
         return
     for i in range(len(train_arr)):
         l1=len(train_arr[i])
@@ -19,8 +19,13 @@ def print_accuracy(test_arr,train_arr,trader_id,feature):
         clf.fit(train_data)
         y_pred=clf.predict(train_data)
         print("FEATURE:",feature,"TRAINING ACCURACY for TRADER",trader_id,":",100 - (sum(y_pred)*100/l1))
-        y_pred=clf.predict(test_data)
-        print("FEATURE:",feature,"TESTING ACCURACY: ",sum(y_pred)*100/l2)
+        mal=[]
+        count=0
+        for i in range(len(y_pred)):
+            if y_pred[i]==1:
+                if (timestamps[i],trader_id) in malicious_keys:
+                    count+=1
+        print("FEATURE:",feature,"TESTING ACCURACY for TRADER",trader_id,":",count*100/len(malicious_keys))
 
 malicious_keys=[]
 with open('attack.csv', 'r') as f1:
@@ -68,32 +73,13 @@ def moving_average(arr,window_size):
 
 
 def draw(x,y,strx,stry,tit):
-        return
-        plt.plot(x,y)
-        plt.title(tit)
-        plt.xlabel(strx)
-        plt.ylabel(stry)
-        plt.xticks(rotation=90)
-        #plt.savefig(tit.replace(' ','') + '.png')
-        # plt.show()
+        return        
 
 def draw2(y,x,strx,stry,tit):
         return
-        plt.plot(x,y)
-        plt.title(tit)
-        plt.xlabel(strx)
-        plt.ylabel(stry)
-        plt.xticks(rotation=90)
-        #plt.savefig(tit.replace(' ','') + '.png')
 
 def draw_hist(x,strx,stry,tit):
         return
-        plt.title(tit)
-        plt.xlabel(strx)
-        plt.ylabel(stry)
-        plt.xticks(rotation=90)
-        plt.hist(x,bins=20)
-        #plt.savefig(tit.replace(' ','') + '_hist.png')
 
 traders=[]
 
@@ -906,76 +892,52 @@ for j in traders:
     a1_mov_avg_cumulative_vol_sell_stddev = moving_average(a1_cumulative_vol_sell_stddev,window_size)
     data_a1_mov_avg_cumulative_vol_sell_stddev.append(a1_mov_avg_cumulative_vol_sell_stddev)
 
-    # print("SUM BUY")
-    print_accuracy([malicious_a1_sum_buy],[a1_sum_buy],j,"SUM BUY")
-    # print("SUM SELL")
-    print_accuracy([malicious_a1_sum_sell],[a1_sum_sell],j,"SUM SELL")
-    # print("SUM MIN BUY")
-    print_accuracy([malicious_a1_min_buy],[a1_min_buy],j,"SUM MIN BUY")
-    # print("MAX BUY")
-    print_accuracy([malicious_a1_max_buy],[a1_max_buy],j,"MAX BUY")
-    # print("MIN SELL")
-    print_accuracy([malicious_a1_min_sell],[a1_min_sell],j,"MIN SELL")
-    # print("MAX SELL")
-    print_accuracy([malicious_a1_max_sell],[a1_max_sell],j,"MAX SELL")
-    # print("MEAN SELL")
-    print_accuracy([malicious_a1_mean_sell],[a1_mean_sell],j,"MEAN SELL")
-    # print("MEAN BUY")
-    print_accuracy([malicious_a1_mean_buy],[a1_mean_buy],j,"MEAN BUY")
-    # print("MEDIAN SELL")
-    print_accuracy([malicious_a1_median_sell],[a1_median_sell],j,"MEDIAN SELL")
-    # print("MEDIAN BUY")
-    print_accuracy([malicious_a1_median_buy],[a1_median_buy],j,"MEDIAN BUY")
-    # print("STDEV SELL")
-    print_accuracy([malicious_a1_stddev_sell],[a1_sell_stddev],j,"STDEV SELL")
-    # print("STDEV BUY")
-    print_accuracy([malicious_a1_stddev_buy],[a1_buy_stddev],j,"STDEV BUY")
+    print_accuracy([malicious_a1_sum_buy],[a1_sum_buy],j,"SUM BUY",a1_timestamps)
+    print_accuracy([malicious_a1_sum_sell],[a1_sum_sell],j,"SUM SELL",a1_timestamps)
+    print_accuracy([malicious_a1_min_buy],[a1_min_buy],j,"SUM MIN BUY",a1_timestamps_buy)
+    print_accuracy([malicious_a1_max_buy],[a1_max_buy],j,"MAX BUY",a1_timestamps_buy)
+    print_accuracy([malicious_a1_min_sell],[a1_min_sell],j,"MIN SELL",a1_timestamps_sell)
+    print_accuracy([malicious_a1_max_sell],[a1_max_sell],j,"MAX SELL",a1_timestamps_sell)
+    print_accuracy([malicious_a1_mean_sell],[a1_mean_sell],j,"MEAN SELL",a1_timestamps_sell)
+    print_accuracy([malicious_a1_mean_buy],[a1_mean_buy],j,"MEAN BUY",a1_timestamps_buy)
+    print_accuracy([malicious_a1_median_sell],[a1_median_sell],j,"MEDIAN SELL",a1_timestamps_sell)
+    print_accuracy([malicious_a1_median_buy],[a1_median_buy],j,"MEDIAN BUY",a1_timestamps_buy)
+    print_accuracy([malicious_a1_stddev_sell],[a1_sell_stddev],j,"STDEV SELL",a1_timestamps_buy_stddev)
+    print_accuracy([malicious_a1_stddev_buy],[a1_buy_stddev],j,"STDEV BUY",a1_timestamps_sell_stddev)
 
-    # print("VOL SUM BUY")
-    print_accuracy([malicious_a1_sum_buy_vol],[a1_vol_sum_buy],j,"VOL SUM BUY")
-    # print("VOL SUM SELL")
-    print_accuracy([malicious_a1_sum_sell_vol],[a1_vol_sum_sell],j,"VOL SUM SELL")
-    # print("VOL MIN BUY")
-    print_accuracy([malicious_a1_min_buy_vol],[a1_vol_min_buy],j,"VOL MIN BUY")
-    # print("VOL MAX BUY")
-    print_accuracy([malicious_a1_max_buy_vol],[a1_vol_max_buy],j,"VOL MAX BUY")
-    # print("VOL MIN SELL")
-    print_accuracy([malicious_a1_min_sell_vol],[a1_vol_min_sell],j,"VOL MIN SELL")
-    # print("VOL MAX SELL")
-    print_accuracy([malicious_a1_max_sell_vol],[a1_vol_max_sell],j,"VOL MAX SELL")
-    # print("VOL MEAN SELL")
-    print_accuracy([malicious_a1_mean_sell_vol],[a1_vol_mean_sell],j,"VOL MEAN SELL")
-    # print("VOL MEAN BUY")
-    print_accuracy([malicious_a1_mean_buy_vol],[a1_vol_mean_buy],j,"VOL MEAN BUY")
-    # print("VOL MEDIAN SELL")
-    print_accuracy([malicious_a1_median_sell_vol],[a1_vol_median_sell],j,"VOL MEDIAN SELL")
-    # print("VOL MEDIAN BUY")
-    print_accuracy([malicious_a1_median_buy_vol],[a1_vol_median_buy],j,"VOL MEDIAN BUY")
-    # print("VOL STDEV SELL")
-    print_accuracy([malicious_a1_stddev_sell_vol],[a1_vol_sell_stddev],j,"VOL STDEV SELL")
-    # print("VOL STDEV BUY")
-    print_accuracy([malicious_a1_stddev_buy_vol],[a1_vol_stddev_buy],j,"VOL STDEV BUY")
+    print_accuracy([malicious_a1_sum_buy_vol],[a1_vol_sum_buy],j,"VOL SUM BUY",a1_timestamps)
+    print_accuracy([malicious_a1_sum_sell_vol],[a1_vol_sum_sell],j,"VOL SUM SELL",a1_timestamps)
+    print_accuracy([malicious_a1_min_buy_vol],[a1_vol_min_buy],j,"VOL MIN BUY",a1_vol_timestamps_buy)
+    print_accuracy([malicious_a1_max_buy_vol],[a1_vol_max_buy],j,"VOL MAX BUY",a1_vol_timestamps_buy)
+    print_accuracy([malicious_a1_min_sell_vol],[a1_vol_min_sell],j,"VOL MIN SELL",a1_vol_timestamps_sell)
+    print_accuracy([malicious_a1_max_sell_vol],[a1_vol_max_sell],j,"VOL MAX SELL",a1_vol_timestamps_sell)
+    print_accuracy([malicious_a1_mean_sell_vol],[a1_vol_mean_sell],j,"VOL MEAN SELL",a1_vol_timestamps_sell)
+    print_accuracy([malicious_a1_mean_buy_vol],[a1_vol_mean_buy],j,"VOL MEAN BUY",a1_vol_timestamps_buy)
+    print_accuracy([malicious_a1_median_sell_vol],[a1_vol_median_sell],j,"VOL MEDIAN SELL",a1_vol_timestamps_sell)
+    print_accuracy([malicious_a1_median_buy_vol],[a1_vol_median_buy],j,"VOL MEDIAN BUY",a1_vol_timestamps_buy)
+    print_accuracy([malicious_a1_stddev_sell_vol],[a1_vol_sell_stddev],j,"VOL STDEV SELL",a1_vol_timestamps_sell_stddev)
+    print_accuracy([malicious_a1_stddev_buy_vol],[a1_vol_stddev_buy],j,"VOL STDEV BUY",a1_vol_timestamps_buy_stddev)
 
-    print_accuracy([malicious_a1_cumulative_sum_buy],[a1_cumulative_sum_buy],j,"CUMULATIVE SUM BUY")
-    print_accuracy([malicious_a1_cumulative_sum_sell],[a1_cumulative_sum_sell],j,"CUMULATIVE SUM SELL")
-    print_accuracy([malicious_a1_cumulative_min_buy],[a1_cumulative_min_buy],j,"CUMULATIVE MIN BUY")
-    print_accuracy([malicious_a1_cumulative_min_sell],[a1_cumulative_min_sell],j,"CUMULATIVE MIN SELL")
-    print_accuracy([malicious_a1_cumulative_max_buy],[a1_cumulative_max_buy],j,"CUMULATIVE MAX BUY")
-    print_accuracy([malicious_a1_cumulative_max_sell],[a1_cumulative_max_sell],j,"CUMULATIVE MAX SELL")
-    print_accuracy([malicious_a1_cumulative_median_buy],[a1_cumulative_median_buy],j,"CUMULATIVE MEDIAN BUY")
-    print_accuracy([malicious_a1_cumulative_median_sell],[a1_cumulative_median_sell],j,"CUMULATIVE MEDIAN SELL")
-    print_accuracy([malicious_a1_cumulative_buy_stddev],[a1_cumulative_buy_stddev],j,"CUMULATIVE STDEV BUY")
-    print_accuracy([malicious_a1_cumulative_sell_stddev],[a1_cumulative_sell_stddev],j,"CUMULATIVE STDEV SELL")
+    print_accuracy([malicious_a1_cumulative_sum_buy],[a1_cumulative_sum_buy],j,"CUMULATIVE SUM BUY",a1_timestamps)
+    print_accuracy([malicious_a1_cumulative_sum_sell],[a1_cumulative_sum_sell],j,"CUMULATIVE SUM SELL",a1_timestamps)
+    print_accuracy([malicious_a1_cumulative_min_buy],[a1_cumulative_min_buy],j,"CUMULATIVE MIN BUY",a1_timestamps_buy)
+    print_accuracy([malicious_a1_cumulative_min_sell],[a1_cumulative_min_sell],j,"CUMULATIVE MIN SELL",a1_timestamps_buy)
+    print_accuracy([malicious_a1_cumulative_max_buy],[a1_cumulative_max_buy],j,"CUMULATIVE MAX BUY",a1_timestamps_sell)
+    print_accuracy([malicious_a1_cumulative_max_sell],[a1_cumulative_max_sell],j,"CUMULATIVE MAX SELL",a1_timestamps_sell)
+    print_accuracy([malicious_a1_cumulative_median_buy],[a1_cumulative_median_buy],j,"CUMULATIVE MEDIAN BUY",a1_timestamps_buy)
+    print_accuracy([malicious_a1_cumulative_median_sell],[a1_cumulative_median_sell],j,"CUMULATIVE MEDIAN SELL",a1_timestamps_buy)
+    print_accuracy([malicious_a1_cumulative_buy_stddev],[a1_cumulative_buy_stddev],j,"CUMULATIVE STDEV BUY",a1_buy_stddev)
+    print_accuracy([malicious_a1_cumulative_sell_stddev],[a1_cumulative_sell_stddev],j,"CUMULATIVE STDEV SELL",a1_timestamps_sell_stddev)
 
-    print_accuracy([malicious_a1_cumulative_vol_sum_buy],[a1_cumulative_vol_sum_buy],j,"CUMULATIVE SUM BUY")
-    print_accuracy([malicious_a1_cumulative_vol_sum_sell],[a1_cumulative_vol_sum_sell],j,"CUMULATIVE SUM SELL")
-    print_accuracy([malicious_a1_cumulative_vol_min_buy],[a1_cumulative_vol_min_buy],j,"CUMULATIVE MIN BUY")
-    print_accuracy([malicious_a1_cumulative_vol_min_sell],[a1_cumulative_vol_min_sell],j,"CUMULATIVE MIN SELL")
-    print_accuracy([malicious_a1_cumulative_vol_max_buy],[a1_cumulative_vol_max_buy],j,"CUMULATIVE MAX BUY")
-    print_accuracy([malicious_a1_cumulative_vol_max_sell],[a1_cumulative_vol_max_sell],j,"CUMULATIVE MAX SELL")
-    print_accuracy([malicious_a1_cumulative_vol_median_buy],[a1_cumulative_vol_median_buy],j,"CUMULATIVE MEDIAN BUY")
-    print_accuracy([malicious_a1_cumulative_vol_median_sell],[a1_cumulative_vol_median_sell],j,"CUMULATIVE MEDIAN SELL")
-    print_accuracy([malicious_a1_cumulative_vol_buy_stddev],[a1_cumulative_vol_buy_stddev],j,"CUMULATIVE STDEV BUY")
-    print_accuracy([malicious_a1_cumulative_vol_sell_stddev],[a1_cumulative_vol_sell_stddev],j,"CUMULATIVE STDEV SELL")
+    print_accuracy([malicious_a1_cumulative_vol_sum_buy],[a1_cumulative_vol_sum_buy],j,"CUMULATIVE VOL SUM BUY",a1_timestamps)
+    print_accuracy([malicious_a1_cumulative_vol_sum_sell],[a1_cumulative_vol_sum_sell],j,"CUMULATIVE VOL SUM SELL",a1_timestamps)
+    print_accuracy([malicious_a1_cumulative_vol_min_buy],[a1_cumulative_vol_min_buy],j,"CUMULATIVE VOL MIN BUY",a1_vol_timestamps_buy)
+    print_accuracy([malicious_a1_cumulative_vol_min_sell],[a1_cumulative_vol_min_sell],j,"CUMULATIVE VOL MIN SELL",a1_vol_timestamps_sell)
+    print_accuracy([malicious_a1_cumulative_vol_max_buy],[a1_cumulative_vol_max_buy],j,"CUMULATIVE VOL MAX BUY",a1_vol_timestamps_buy)
+    print_accuracy([malicious_a1_cumulative_vol_max_sell],[a1_cumulative_vol_max_sell],j,"CUMULATIVE VOL MAX SELL",a1_vol_timestamps_sell)
+    print_accuracy([malicious_a1_cumulative_vol_median_buy],[a1_cumulative_vol_median_buy],j,"CUMULATIVE VOL MEDIAN BUY",a1_vol_timestamps_buy)
+    print_accuracy([malicious_a1_cumulative_vol_median_sell],[a1_cumulative_vol_median_sell],j,"CUMULATIVE VOL MEDIAN SELL",a1_vol_timestamps_sell)
+    print_accuracy([malicious_a1_cumulative_vol_buy_stddev],[a1_cumulative_vol_buy_stddev],j,"CUMULATIVE VOL STDEV BUY",a1_vol_timestamps_buy_stddev)
+    print_accuracy([malicious_a1_cumulative_vol_sell_stddev],[a1_cumulative_vol_sell_stddev],j,"CUMULATIVE VOL STDEV SELL",a1_vol_timestamps_sell_stddev)
 
-# print_accuracy(data_a1_buy_stddev,data_a1_buy_stddev)
+    # print_accuracy()
