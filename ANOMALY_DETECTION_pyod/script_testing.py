@@ -4,6 +4,8 @@ import csv
 
 import numpy as np
 from pyod.models.ocsvm import OCSVM
+from pyod.models.pca import PCA
+from pyod.models.auto_encoder import AutoEncoder
 
 def print_accuracy(test_arr,train_arr,trader_id,feature,timestamps):
     if len(train_arr)==0:
@@ -26,6 +28,41 @@ def print_accuracy(test_arr,train_arr,trader_id,feature,timestamps):
                 if (timestamps[i],trader_id) in malicious_keys:
                     count+=1
         print("FEATURE:",feature,"TESTING ACCURACY for TRADER",trader_id,":",count*100/len(malicious_keys))
+
+def print_accuracy1(train_arr,trader_id,feature,timestamps):
+    if len(train_arr)==0:
+        return
+    for i in range(len(train_arr)):
+        l1=len(train_arr[i])
+        if l1==0:
+            continue
+        train_data=np.array(train_arr[i]).T
+        # print(train_data.shape)
+        # test_data=np.array([test_arr[i]]).T
+        clf=OCSVM()
+        clf.fit(train_data)
+        y_pred=clf.predict(train_data)
+        print("OCSVM","FEATURE:",feature,"TRAINING ACCURACY for TRADER",trader_id,":",100 - (sum(y_pred)*100/len(y_pred)))
+        mal=[]
+        count=0
+        for i in range(len(y_pred)):
+            if y_pred[i]==1:
+                if (timestamps[i],trader_id) in malicious_keys:
+                    count+=1
+        print("OCSVM","FEATURES:",feature,"TESTING ACCURACY for TRADER",trader_id,":",count*100/len(malicious_keys))
+
+        clf=PCA()
+        clf.fit(train_data)
+        y_pred=clf.predict(train_data)
+        print("PCA","FEATURE:",feature,"TRAINING ACCURACY for TRADER",trader_id,":",100 - (sum(y_pred)*100/len(y_pred)))
+        mal=[]
+        count=0
+        for i in range(len(y_pred)):
+            if y_pred[i]==1:
+                if (timestamps[i],trader_id) in malicious_keys:
+                    count+=1
+        print("PCA","FEATURES:",feature,"TESTING ACCURACY for TRADER",trader_id,":",count*100/len(malicious_keys))
+
 
 malicious_keys=[]
 with open('attack.csv', 'r') as f1:
@@ -940,4 +977,77 @@ for j in traders:
     print_accuracy([malicious_a1_cumulative_vol_buy_stddev],[a1_cumulative_vol_buy_stddev],j,"CUMULATIVE VOL STDEV BUY",a1_vol_timestamps_buy_stddev)
     print_accuracy([malicious_a1_cumulative_vol_sell_stddev],[a1_cumulative_vol_sell_stddev],j,"CUMULATIVE VOL STDEV SELL",a1_vol_timestamps_sell_stddev)
 
-    # print_accuracy()
+    same_timestamps1=[a1_sum_buy,a1_sum_sell,a1_vol_sum_buy,a1_vol_sum_sell,a1_cumulative_sum_buy,a1_cumulative_sum_sell,a1_cumulative_vol_sum_buy,a1_cumulative_vol_sum_sell]
+    labels1=["SUM BUY","SUM SELL","VOL SUM BUY","VOL SUM SELL","CUM. SUM BUY","CUM. SUM SELL","CUM. VOL SUM BUY","CUM. VOL SUM SELL"]
+
+    for i in range(len(same_timestamps1)):
+        if i==0:
+            train=same_timestamps1[1:]
+            # print(train.shape)
+            labels=' '.join(labels1[1:])
+        else:
+            train=same_timestamps1[:i]+same_timestamps1[i+1:]
+            # train=np.array(same_timestamps1[:i]+same_timestamps1[i+1:])
+            # print(train.shape)
+            labels=','.join(labels1[:i]+labels1[i+1:])
+        print_accuracy1([train],j,labels,a1_timestamps)
+
+    same_timestamps1=[a1_min_buy,a1_max_buy,a1_mean_buy,a1_median_buy,a1_cumulative_min_buy,a1_cumulative_max_buy,a1_cumulative_mean_buy,a1_cumulative_median_buy]
+    labels1=["MIN BUY","MAX BUY","MEAN BUY","MEDIAN BUY","CUM. MIN BUY","CUM. MAX BUY","CUM. MEAN BUY","CUM. MEDIAN BUY"]
+
+    for i in range(len(same_timestamps1)):
+        if i==0:
+            train=same_timestamps1[1:]
+            # print(train.shape)
+            labels=' '.join(labels1[1:])
+        else:
+            train=same_timestamps1[:i]+same_timestamps1[i+1:]
+            # train=np.array(same_timestamps1[:i]+same_timestamps1[i+1:])
+            # print(train.shape)
+            labels=','.join(labels1[:i]+labels1[i+1:])
+        print_accuracy1([train],j,labels,a1_timestamps_buy)
+
+    same_timestamps1=[a1_min_sell,a1_max_sell,a1_mean_sell,a1_median_sell,a1_cumulative_min_sell,a1_cumulative_max_sell,a1_cumulative_mean_sell,a1_cumulative_median_sell]
+    labels1=["MIN SELL","MAX SELL","MEAN SELL","MEDIAN SELL","CUM. MIN SELL","CUM. MAX SELL","CUM. MEAN SELL","CUM. MEDIAN SELL"]
+
+    for i in range(len(same_timestamps1)):
+        if i==0:
+            train=same_timestamps1[1:]
+            # print(train.shape)
+            labels=' '.join(labels1[1:])
+        else:
+            train=same_timestamps1[:i]+same_timestamps1[i+1:]
+            # train=np.array(same_timestamps1[:i]+same_timestamps1[i+1:])
+            # print(train.shape)
+            labels=','.join(labels1[:i]+labels1[i+1:])
+        print_accuracy1([train],j,labels,a1_timestamps_sell)
+
+    same_timestamps1=[a1_vol_min_buy,a1_vol_max_buy,a1_vol_mean_buy,a1_vol_median_buy,a1_cumulative_vol_min_buy,a1_cumulative_vol_max_buy,a1_cumulative_vol_mean_buy,a1_cumulative_vol_median_buy]
+    labels1=["VOL MIN BUY","VOL MAX BUY","VOL MEAN BUY","VOL MEDIAN BUY","CUM. VOL MIN BUY","CUM. VOL MAX BUY","CUM. VOL MEAN BUY","CUM. VOL MEDIAN BUY"]
+
+    for i in range(len(same_timestamps1)):
+        if i==0:
+            train=same_timestamps1[1:]
+            # print(train.shape)
+            labels=' '.join(labels1[1:])
+        else:
+            train=same_timestamps1[:i]+same_timestamps1[i+1:]
+            # train=np.array(same_timestamps1[:i]+same_timestamps1[i+1:])
+            # print(train.shape)
+            labels=','.join(labels1[:i]+labels1[i+1:])
+        print_accuracy1([train],j,labels,a1_vol_timestamps_buy)
+
+    same_timestamps1=[a1_vol_min_sell,a1_vol_max_sell,a1_vol_mean_sell,a1_vol_median_sell,a1_cumulative_vol_min_sell,a1_cumulative_vol_max_sell,a1_cumulative_vol_mean_sell,a1_cumulative_vol_median_sell]
+    labels1=["VOL MIN SELL","VOL MAX SELL","VOL MEAN SELL","VOL MEDIAN SELL","CUM. VOL MIN SELL","CUM. VOL MAX SELL","CUM. VOL MEAN SELL","CUM. VOL MEDIAN SELL"]
+
+    for i in range(len(same_timestamps1)):
+        if i==0:
+            train=same_timestamps1[1:]
+            # print(train.shape)
+            labels=' '.join(labels1[1:])
+        else:
+            train=same_timestamps1[:i]+same_timestamps1[i+1:]
+            # train=np.array(same_timestamps1[:i]+same_timestamps1[i+1:])
+            # print(train.shape)
+            labels=','.join(labels1[:i]+labels1[i+1:])
+        print_accuracy1([train],j,labels,a1_vol_timestamps_sell)
