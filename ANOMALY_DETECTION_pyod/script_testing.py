@@ -8,6 +8,12 @@ from pyod.models.pca import PCA
 from pyod.models.auto_encoder import AutoEncoder
 
 def print_accuracy(test_arr,train_arr,trader_id,feature,timestamps):
+    xyz=0
+    for i in malicious_keys:
+        if i[1]==trader_id:
+            xyz+=1
+    if not xyz:
+        return
     if len(train_arr)==0:
         return
     for i in range(len(train_arr)):
@@ -27,9 +33,15 @@ def print_accuracy(test_arr,train_arr,trader_id,feature,timestamps):
             if y_pred[i]==1:
                 if (timestamps[i],trader_id) in malicious_keys:
                     count+=1
-        print("FEATURE:",feature,"TESTING ACCURACY for TRADER",trader_id,":",count*100/len(malicious_keys))
+        print("FEATURE:",feature,"TESTING ACCURACY for TRADER",trader_id,":",count*100/xyz)
 
 def print_accuracy1(train_arr,trader_id,feature,timestamps):
+    xyz=0
+    for i in malicious_keys:
+        if i[1]==trader_id:
+            xyz+=1
+    if not xyz:
+        return
     if len(train_arr)==0:
         return
     for i in range(len(train_arr)):
@@ -49,7 +61,7 @@ def print_accuracy1(train_arr,trader_id,feature,timestamps):
             if y_pred[i]==1:
                 if (timestamps[i],trader_id) in malicious_keys:
                     count+=1
-        print("OCSVM","FEATURES:",feature,"TESTING ACCURACY for TRADER",trader_id,":",count*100/len(malicious_keys))
+        print("OCSVM","FEATURES:",feature,"TESTING ACCURACY for TRADER",trader_id,":",count*100/xyz)
 
         clf=PCA()
         clf.fit(train_data)
@@ -61,10 +73,11 @@ def print_accuracy1(train_arr,trader_id,feature,timestamps):
             if y_pred[i]==1:
                 if (timestamps[i],trader_id) in malicious_keys:
                     count+=1
-        print("PCA","FEATURES:",feature,"TESTING ACCURACY for TRADER",trader_id,":",count*100/len(malicious_keys))
+        print("PCA","FEATURES:",feature,"TESTING ACCURACY for TRADER",trader_id,":",count*100/xyz)
 
 
 malicious_keys=[]
+malicious_traders=[]
 with open('attack.csv', 'r') as f1:
     reader1 = list(csv.reader(f1))
     reader1.pop(0)
@@ -89,7 +102,12 @@ with open('attack.csv', 'r') as f1:
                 match_timestamp=entry[13]
                 if order_id==i[1]:
                     malicious_keys.append((time_stamp,trader_id))
+                    malicious_traders.append(trader_id)
 
+# malicious_traders=list(set(malicious_traders))
+# print("MALICIOUS TRADERS")
+# for i in malicious_traders:
+#     print(i)
 # print(malicious_keys)
 
 
