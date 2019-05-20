@@ -11,6 +11,6 @@ with open('all.txt') as f:
 			i+=1
 		a[i].add(j.strip('\n'))
 f.close()
-common=a[0]&a[1]&a[2]&a[3]
+common=sorted(list(a[0]&a[1]&a[2]&a[3]))
 for i in common:
 	print(i)
