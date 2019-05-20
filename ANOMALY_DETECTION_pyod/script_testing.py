@@ -7,19 +7,20 @@ from pyod.models.ocsvm import OCSVM
 from pyod.models.pca import PCA
 from pyod.models.auto_encoder import AutoEncoder
 
+imp_features=[]
+
 def print_accuracy(test_arr,train_arr,trader_id,feature,timestamps):
     xyz=0
     for i in malicious_keys:
         if i[1]==trader_id:
             xyz+=1
-    if not xyz:
-        return
     if len(train_arr)==0:
         return
     for i in range(len(train_arr)):
+        # print(len(train_arr[i]))
         l1=len(train_arr[i])
         l2=len(test_arr[i])
-        if l1==0 or l2==0:
+        if l1==0:
             continue
         train_data=np.array([train_arr[i]]).T
         test_data=np.array([test_arr[i]]).T
@@ -27,12 +28,18 @@ def print_accuracy(test_arr,train_arr,trader_id,feature,timestamps):
         clf.fit(train_data)
         y_pred=clf.predict(train_data)
         print("FEATURE:",feature,"TRAINING ACCURACY for TRADER",trader_id,":",100 - (sum(y_pred)*100/l1))
+        if l2==0:
+            continue
+        if not xyz:
+            return
         mal=[]
         count=0
         for i in range(len(y_pred)):
             if y_pred[i]==1:
                 if (timestamps[i],trader_id) in malicious_keys:
                     count+=1
+        if count:
+            imp_features.append(feature)
         print("FEATURE:",feature,"TESTING ACCURACY for TRADER",trader_id,":",count*100/xyz)
 
 def print_accuracy1(train_arr,trader_id,feature,timestamps):
@@ -40,8 +47,6 @@ def print_accuracy1(train_arr,trader_id,feature,timestamps):
     for i in malicious_keys:
         if i[1]==trader_id:
             xyz+=1
-    if not xyz:
-        return
     if len(train_arr)==0:
         return
     for i in range(len(train_arr)):
@@ -55,6 +60,17 @@ def print_accuracy1(train_arr,trader_id,feature,timestamps):
         clf.fit(train_data)
         y_pred=clf.predict(train_data)
         print("OCSVM","FEATURE:",feature,"TRAINING ACCURACY for TRADER",trader_id,":",100 - (sum(y_pred)*100/len(y_pred)))
+
+        clf=PCA()
+        clf.fit(train_data)
+        y_pred=clf.predict(train_data)
+        print("PCA","FEATURE:",feature,"TRAINING ACCURACY for TRADER",trader_id,":",100 - (sum(y_pred)*100/len(y_pred)))
+
+        if not xyz:
+            return
+        clf=OCSVM()
+        clf.fit(train_data)
+        y_pred=clf.predict(train_data)
         mal=[]
         count=0
         for i in range(len(y_pred)):
@@ -62,11 +78,12 @@ def print_accuracy1(train_arr,trader_id,feature,timestamps):
                 if (timestamps[i],trader_id) in malicious_keys:
                     count+=1
         print("OCSVM","FEATURES:",feature,"TESTING ACCURACY for TRADER",trader_id,":",count*100/xyz)
+        if count:
+            imp_features.append(feature)
 
         clf=PCA()
         clf.fit(train_data)
         y_pred=clf.predict(train_data)
-        print("PCA","FEATURE:",feature,"TRAINING ACCURACY for TRADER",trader_id,":",100 - (sum(y_pred)*100/len(y_pred)))
         mal=[]
         count=0
         for i in range(len(y_pred)):
@@ -74,6 +91,9 @@ def print_accuracy1(train_arr,trader_id,feature,timestamps):
                 if (timestamps[i],trader_id) in malicious_keys:
                     count+=1
         print("PCA","FEATURES:",feature,"TESTING ACCURACY for TRADER",trader_id,":",count*100/xyz)
+        if count:
+            imp_features.append(feature)
+
 
 
 malicious_keys=[]
@@ -182,6 +202,7 @@ keys.sort()
 user_order=[]
 
 for j in traders:
+    print("\n\n",j,"\n\n")
     data_a1_buy_stddev=[]
     malicious_data_a1_buy_stddev=[]
     data_a1_cumulative_buy_stddev=[]
@@ -1002,7 +1023,7 @@ for j in traders:
         if i==0:
             train=same_timestamps1[1:]
             # print(train.shape)
-            labels=' '.join(labels1[1:])
+            labels=','.join(labels1[1:])
         else:
             train=same_timestamps1[:i]+same_timestamps1[i+1:]
             # train=np.array(same_timestamps1[:i]+same_timestamps1[i+1:])
@@ -1017,7 +1038,7 @@ for j in traders:
         if i==0:
             train=same_timestamps1[1:]
             # print(train.shape)
-            labels=' '.join(labels1[1:])
+            labels=','.join(labels1[1:])
         else:
             train=same_timestamps1[:i]+same_timestamps1[i+1:]
             # train=np.array(same_timestamps1[:i]+same_timestamps1[i+1:])
@@ -1032,7 +1053,7 @@ for j in traders:
         if i==0:
             train=same_timestamps1[1:]
             # print(train.shape)
-            labels=' '.join(labels1[1:])
+            labels=','.join(labels1[1:])
         else:
             train=same_timestamps1[:i]+same_timestamps1[i+1:]
             # train=np.array(same_timestamps1[:i]+same_timestamps1[i+1:])
@@ -1047,7 +1068,7 @@ for j in traders:
         if i==0:
             train=same_timestamps1[1:]
             # print(train.shape)
-            labels=' '.join(labels1[1:])
+            labels=','.join(labels1[1:])
         else:
             train=same_timestamps1[:i]+same_timestamps1[i+1:]
             # train=np.array(same_timestamps1[:i]+same_timestamps1[i+1:])
@@ -1062,10 +1083,21 @@ for j in traders:
         if i==0:
             train=same_timestamps1[1:]
             # print(train.shape)
-            labels=' '.join(labels1[1:])
+            labels=','.join(labels1[1:])
         else:
             train=same_timestamps1[:i]+same_timestamps1[i+1:]
             # train=np.array(same_timestamps1[:i]+same_timestamps1[i+1:])
             # print(train.shape)
             labels=','.join(labels1[:i]+labels1[i+1:])
         print_accuracy1([train],j,labels,a1_vol_timestamps_sell)
+
+print("\n\n","IMPORTANT FEATURES","\n\n")
+imp_features=list(set(imp_features))
+comb=[]
+for i in imp_features:
+    print(i)
+    comb+=i.split(',')
+comb=sorted(list(set(comb)))
+print("\n\n","THEY INCLUDE","\n\n")
+for i in comb:
+    print(i)
