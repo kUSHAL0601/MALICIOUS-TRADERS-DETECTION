@@ -45,6 +45,7 @@ with open('attack.csv', 'r') as f1:
 					except:
 						d_attack[trader_id]=[time_stamp]
 
+print("MALICIOUS TRADERS:",*sorted(list(d_attack.keys())))
 for i in traders:
 	if i not in d_attack:
 		d_attack[i]=[]
