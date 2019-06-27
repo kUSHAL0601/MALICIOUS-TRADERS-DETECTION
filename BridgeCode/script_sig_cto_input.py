@@ -587,7 +587,7 @@ def sigmoid(x):
 
 ## OCSVM
 # clf1 = OCSVM(kernel = 'rbf',gamma = 1,nu = 0.4)
-clf1 = oc_svm(kernel = 'linear',nu= 0.02,gamma = 1)
+clf1 = oc_svm(kernel = 'linear',nu= 0.003,gamma = 0.41)
 clf1.fit(train_normal_arr_stnd)
 roc = []
 recall_list = []
@@ -596,7 +596,9 @@ recall_list = []
 predicted = clf1.predict(test_all_data_stnd)
 
 
-# print(predicted)
+print(predicted)
+print(clf1.score_samples(test_all_data_stnd))
+
 # print(test_labels)
 # for k in np.arange(-0.01,0.01,0.0005):
 # print("for",k)
@@ -604,10 +606,10 @@ predicted = []
 # try:    
 for val in range(len(test_all_data_stnd)):
     # print(clf1.score_samples(test_all_data_stnd[val].reshape(1,-1)))
-    if clf1.score_samples(test_all_data_stnd[val].reshape(1,-1)) > -0.0001:
-        predicted.append(-1)
-    else:
+    if clf1.score_samples(test_all_data_stnd[val].reshape(1,-1)) > 0.0001:
         predicted.append(1)
+    else:
+        predicted.append(-1)
 
 accuracy = 0
 recall = 0
@@ -624,16 +626,16 @@ for i in range(len(predicted)):
         pred_indices_mal.append(i)
         indices_positive +=1
 precision = recall/indices_positive
-# print("OCSVM Precision",100*precision)
-# print("OCSVM accuracy",100*accuracy/len(test_labels))
-# print("OCSVM recall",100*recall/len(malicious_complete_data_arr))
-# print("f measure", ((precision*recall)/(precision+recall)))
+print("OCSVM Precision",100*precision)
+print("OCSVM accuracy",100*accuracy/len(test_labels))
+print("OCSVM recall",100*recall/len(malicious_complete_data_arr))
+print("f measure", ((precision*recall)/(precision+recall)))
 # print(len(clf1.support_vectors_))
 # print(clf1.score_samples(test_all_data_stnd))
 # print(len(clf1.decision_scores_[clf1.decision_scores_>clf1.threshold_])) 
 roc.append(roc_auc_score(predicted,test_labels))
 recall_list.append(recall)
-# print("roc",roc_auc_score(predicted,test_labels))
+print("roc",roc_auc_score(predicted,test_labels))
 # except:
 #     roc.append(0)
 #     recall_list.append(0)
