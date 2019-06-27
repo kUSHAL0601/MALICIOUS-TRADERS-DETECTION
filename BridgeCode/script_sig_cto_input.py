@@ -582,8 +582,9 @@ test_labels = all_labels[int(0.8*len(normal_complete_data_arr)):len(all_labels)]
 # print("PCA Recall",recall/len(malicious_complete_data_arr))
 # print(clf1.singular_values_)
 test_keys = non_malicious[int(0.8*len(normal_complete_data_arr)):len(all_labels)] + mal_traders
+eta = 1
 def sigmoid(x):
-  return 1 / (1 + math.exp(x))
+  return 1 / (1 + math.exp(eta*x))
 
 ## OCSVM
 # clf1 = OCSVM(kernel = 'rbf',gamma = 1,nu = 0.4)
