@@ -587,7 +587,7 @@ def sigmoid(x):
 
 ## OCSVM
 # clf1 = OCSVM(kernel = 'rbf',gamma = 1,nu = 0.4)
-clf1 = oc_svm(kernel = 'linear',nu= 0.003,gamma = 0.41)
+clf1 = oc_svm(kernel = 'linear',nu= 0.008)
 clf1.fit(train_normal_arr_stnd)
 roc = []
 recall_list = []
