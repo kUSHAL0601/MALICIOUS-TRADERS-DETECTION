@@ -61,5 +61,10 @@ def main(no_analysts,threshold_k):
 	for i in map_analyst_labels:
 		map_analyst_labels[i].sort(key=lambda i:severity[i],reverse=True)
 		map_analyst_labels[i]=map_analyst_labels[i][:threshold_k]
+	for i in map_analyst_labels:
+		x=[]
+		for j in map_analyst_labels[i]:
+			x.append(trader[j])
+		map_analyst_labels[i]=x
 	return map_analyst_labels
 print(main(3,5))
