@@ -18,16 +18,21 @@ def read_file(filename):
 		severity.append(float(i[-1]))
 	return (trader,timestamp,features,severity)
 
-def do_cluster(features,no_traders):
+def do_cluster(features,no_traders,cluster_centers):
 	features=np.array(features)
-	kmeans=KMeans(n_clusters=no_traders,random_state=0).fit(features)
-	return list(kmeans.labels_)
+	if not len(cluster_centers):
+		kmeans=KMeans(n_clusters=no_traders,random_state=0).fit(features)
+		print("Random Cluster Center")
+	else:
+		kmeans=KMeans(n_clusters=no_traders,init=cluster_centers).fit(features)
+	return kmeans
 
-def main(no_analysts,threshold_k):
+def main(no_analysts,threshold_k,cluster_centers=[]):
 	(trader,timestamp,features,severity)=read_file('feature_vector.csv')
 	traders=list(set(trader))
 	traders.sort()
-	labels=do_cluster(features,no_analysts)
+	kmeans=do_cluster(features,no_analysts,cluster_centers)
+	labels=kmeans.labels_
 #	match={}
 #	for i in range(len(trader)):
 #		for j in range(len(traders)):
@@ -66,5 +71,10 @@ def main(no_analysts,threshold_k):
 		for j in map_analyst_labels[i]:
 			x.append(trader[j])
 		map_analyst_labels[i]=x
-	return map_analyst_labels
-print(main(3,5))
+	return map_analyst_labels,kmeans.cluster_centers_
+allocation,cluster_center=main(3,5)
+print(allocation)
+print(cluster_center)
+allocation,cluster_center=main(3,5,cluster_center)
+print(allocation)
+print(cluster_center)
