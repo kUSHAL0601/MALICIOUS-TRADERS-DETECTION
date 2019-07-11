@@ -51,9 +51,24 @@ def main(no_analysts,threshold_k,cluster_centers=[]):
 			x.append((trader[j],labels_gt[j]))
 		map_analyst_labels[i]=x
 	return map_analyst_labels,kmeans.cluster_centers_
+
+def get_positives_negatives(allocation):
+	alloc_pos_neg={}
+	for i in allocation:
+		alloc_pos_neg[i]={'pos':0,'neg':0}
+		for j in allocation[i]:
+			if j[1]>0:
+				alloc_pos_neg[i]['pos']+=1
+			else:
+				alloc_pos_neg[i]['neg']+=1
+	return alloc_pos_neg
 allocation,cluster_center=main(3,5)
 print(allocation)
+alloc_pos_neg=get_positives_negatives(allocation)
+print(alloc_pos_neg)
 #print(cluster_center)
 allocation,cluster_center=main(3,5,cluster_center)
 print(allocation)
+alloc_pos_neg=get_positives_negatives(allocation)
+print(alloc_pos_neg)
 #print(cluster_center)
