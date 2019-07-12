@@ -69,25 +69,31 @@ def get_positives_negatives(allocation):
 	return alloc_pos_neg
 
 
-
 sum = 0
 sum_cluster = []
 dir_len = len(os.listdir("features_rbf/"))
-k =10
-allocation,cluster_center,cluster_size=cto(5,k,0)
-## Each for loop iteration executes K-means algorithm based on cluser centres from previous iterations
-for i in range(1,dir_len):
+for i in range(dir_len):
+	k  = 10
 	sum_cstr = 0 
-	# print(allocation)
-	alloc_pos_neg=get_positives_negatives(allocation)
-	for key,item in alloc_pos_neg.items():
-		print("accuracy based on cluster",item['neg']/k)#/cluster_size[key])
-		sum += item['neg']
-		sum_cstr +=item['neg']
-	sum_cluster.append(sum_cstr)	
+	if i == 0:
+		allocation,cluster_center,cluster_size=cto(5,k,i)
+		print(allocation)
+		alloc_pos_neg=get_positives_negatives(allocation)
+		for key,item in alloc_pos_neg.items():
+			print("accuracy based on cluster",item['neg']/k)#/cluster_size[key])
+			sum += item['neg']
+			sum_cstr +=item['neg']
+		sum_cluster.append(sum_cstr)	
 			
-	allocation,cluster_center,cluster_size=cto(5,k,i,cluster_center)
-	print(allocation)
+	else:
+		allocation,cluster_center,cluster_size=cto(5,k,i,cluster_center)
+		print(allocation)
+		alloc_pos_neg=get_positives_negatives(allocation)
+		for key,item in alloc_pos_neg.items():
+			print("accuracy based on cluster",item['neg']/k)#/cluster_size[key])
+			sum += item['neg']
+			sum_cstr +=item['neg']
+		sum_cluster.append(sum_cstr)
 
 print("Anomalies detected in each iteration : ",sum_cluster)
 print("Total anomalies detected:", sum)
