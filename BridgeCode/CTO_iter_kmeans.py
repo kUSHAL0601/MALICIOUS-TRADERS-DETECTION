@@ -72,6 +72,7 @@ def get_positives_negatives(allocation):
 sum = 0
 sum_cluster = []
 dir_len = len(os.listdir("features_rbf/"))
+## Each for loop iteration executes K-means algorithm based on cluser centres from previous iterations except first where random clusters are initiated.
 for i in range(dir_len):
 	k  = 10
 	sum_cstr = 0 
