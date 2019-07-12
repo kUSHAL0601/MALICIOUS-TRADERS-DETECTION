@@ -21,7 +21,7 @@ def read_file(filename):
 		severity.append(float(i[-2]))
 		labels.append(float(i[-1]))
 	return (trader,timestamp,features,severity,labels)
-
+## K-means clustering
 def do_cluster(features,no_traders,cluster_centers):
 	features=np.array(features)
 	if not len(cluster_centers):
@@ -30,7 +30,7 @@ def do_cluster(features,no_traders,cluster_centers):
 	else:
 		kmeans=KMeans(n_clusters=no_traders,init=cluster_centers).fit(features)
 	return kmeans
-
+## Code for cto function
 def cto(no_analysts,threshold_k,i,cluster_centers=[]):
 	(trader,timestamp,features,severity,labels_gt)=read_file('features_rbf/feature_vector_'+str(i)+'.csv')
 #	print(labels_gt)
@@ -69,23 +69,15 @@ def get_positives_negatives(allocation):
 	return alloc_pos_neg
 
 
-# allocation,cluster_center=main(3,5)
-# print(allocation)
-# alloc_pos_neg=get_positives_negatives(allocation)
-# print(alloc_pos_neg)
-# #print(cluster_center)
-# allocation,cluster_center=main(3,5,cluster_center)
-# print(allocation)
-# alloc_pos_neg=get_positives_negatives(allocation)
-# print(alloc_pos_neg)
-# #print(cluster_center)
+
 sum = 0
 sum_cluster = []
 dir_len = len(os.listdir("features_rbf/"))
-for i in range(dir_len):
-	k  = 10
+k =10
+allocation,cluster_center,cluster_size=cto(5,k,0)
+## Each for loop iteration executes K-means algorithm based on cluser centres from previous iterations
+for i in range(1,dir_len):
 	sum_cstr = 0 
-	allocation,cluster_center,cluster_size=cto(5,k,i)
 	# print(allocation)
 	alloc_pos_neg=get_positives_negatives(allocation)
 	for key,item in alloc_pos_neg.items():
@@ -93,10 +85,7 @@ for i in range(dir_len):
 		sum += item['neg']
 		sum_cstr +=item['neg']
 	sum_cluster.append(sum_cstr)	
-		# print("accuracy cluster",item['neg']/allocation[key])
-	
-	# print(allocation)
-	# print(cluster_center)
+			
 	allocation,cluster_center,cluster_size=cto(5,k,i,cluster_center)
 	print(allocation)
 
