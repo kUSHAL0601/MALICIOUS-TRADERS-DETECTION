@@ -81,7 +81,8 @@ def get_positives_negatives(allocation):
 # #print(cluster_center)
 sum = 0
 sum_cluster = []
-for i in range(7):
+dir_len = len(os.listdir("features_rbf/"))
+for i in range(dir_len):
 	k  = 10
 	sum_cstr = 0 
 	allocation,cluster_center,cluster_size=cto(5,k,i)
