@@ -6,12 +6,12 @@ eligibility={}
 frequency={}
 ## Function to get top tuple not taken for a cluster
 def get_top(arr_cluster,vis,trader,severity):
-	max_eligibility=0
+	max_eligibility=1e9
 	topTuple=0
 	for i in arr_cluster:
 		if i not in vis:
 			new_val=(eligibility[trader[i]]+frequency[trader[i]]+1)*severity[i]
-			if new_val>max_eligibility:
+			if new_val<max_eligibility:
 				max_eligibility=new_val
 				topTuple=i
 	eligibility[trader[topTuple]]=0.25*max_eligibility
