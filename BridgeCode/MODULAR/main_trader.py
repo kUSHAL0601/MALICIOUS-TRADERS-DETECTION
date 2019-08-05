@@ -12,17 +12,25 @@ def do_update(f,cluster_center=[]):
 	(trader,timestamp,features,severity,labels_gt)=read_file("feature_rbf_per_secs/"+f)
 	features=np.array(features)
 	traders=list(set(trader))
+	temp_severity={}
+	temp_count={}
 	for i in traders:
+		temp_severity[i]=0
+		temp_count[i]=0
 		if i not in d:
 			d[i]={}
 			d[i]['severity']=0
 			d[i]['features']=None
 	for i in range(len(trader)):
-		d[trader[i]]['severity']+=severity[i]
+		temp_severity[trader[i]]+=severity[i]
+		temp_count[trader[i]]+=1
 		try:
 			d[trader[i]]['features']+=features[i]
 		except:
 			d[trader[i]]['features']=features[i]
+	for i in temp_severity:
+		if temp_count[i]:
+			d[i]['severity']+=temp_severity[i]/temp_count[i]
 	cumulative_features=[]
 	cumulative_severity=[]
 	for i in d:
