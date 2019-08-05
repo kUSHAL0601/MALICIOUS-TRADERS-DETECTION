@@ -13,4 +13,5 @@ def update_features(features,option="Euclidean"):
 		return features
 	elif option=="Mahalanobis":
 		features=np.asarray(features)
+		print(features.mean())
 		return (features-features.mean())/features.std()
