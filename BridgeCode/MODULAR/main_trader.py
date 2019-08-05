@@ -22,8 +22,9 @@ def do_update(f,cluster_center=[]):
 			d[i]['severity']=0
 			d[i]['features']=None
 	for i in range(len(trader)):
-		temp_severity[trader[i]]+=severity[i]
-		temp_count[trader[i]]+=1
+		if severity[i]>0.5:
+			temp_severity[trader[i]]+=severity[i]
+			temp_count[trader[i]]+=1
 		try:
 			d[trader[i]]['features']+=features[i]
 		except:
