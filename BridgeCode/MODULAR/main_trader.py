@@ -37,7 +37,6 @@ def do_update(f,cluster_center=[]):
 cluster_center=[]
 for f in range(len(files)):
 	cluster_center=do_update(files[f],cluster_center)
-	print(cluster_center.shape)
 	if f%5==4:
 		res=[]
 		for i in d:
