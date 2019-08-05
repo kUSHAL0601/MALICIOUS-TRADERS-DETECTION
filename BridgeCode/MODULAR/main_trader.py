@@ -30,7 +30,7 @@ def do_update(f,cluster_center=[]):
 			d[trader[i]]['features']=features[i]
 	for i in temp_severity:
 		if temp_count[i]:
-			d[i]['severity']+=temp_severity[i]/temp_count[i]
+			d[i]['severity']=temp_severity[i]/temp_count[i]+0.9*d[i]['severity']
 	cumulative_features=[]
 	cumulative_severity=[]
 	for i in d:
