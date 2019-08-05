@@ -1,0 +1,68 @@
+The Planner
+-----------
+
+
+Input: List of tuples <Trader ID (string), Attack Type (string), Severity (String) >
+----------------------------------------------------------------------------------------
+| Example input = [ <"t1", "a1", 3>, <"t2", "a5", 1>, <"t4", "a4", 6>, <"t2, "a3", 7> ] |
+----------------------------------------------------------------------------------------
+
+
+Working:
+-> The planner has a config file in which the number of human agents and their skill sets are saved.
+
+----------------------------------------------------------------
+| Example config:						|
+| Number of human agents = 4					|
+| Number of attack types = 6					|
+| List of attack types = ["a1", "a2", "a3", "a4", "a5", "a6"]	|
+| Skill set (map) = { 						|
+|	"h1" : ["a1", "a2"],					|
+|	"h2" : ["a3", "a4"],					|
+|	"h3" : ["a5", "a6"],					|
+| 	"h4" : ["a1", "a3", "a5"]				|
+| }								|
+-----------------------------------------------------------------
+
+-> The planner takes in the input and divides the input list into subsets according to the configured skill sets of human agents.
+
+How:
+1. For each attack type a_i in a_1 to a_N:
+2. 	make a sublist (S) of attacks a_i from input list
+3.      make a list of human agents (H) whose skills is dealing with a_i
+4.	For i in S, j in H:
+5.		j.append(i)
+6.	End for
+7. End for
+
+-> This way we assign input attack types to each agent.
+(The above algorithm is an example. You may comeup with different method of assignment. 
+ Ensure each tuple is assigned to only agent and all the tuples are assigned.)
+
+-> Once all the tuples are assigned, then we need these 2 functions.
+
+Function1: takes the list of tuples assigned for an agent as input, then returns the normalized severity values of the input list.
+--------------------------------------------------------------------------------
+| Example:									|
+| input = [ <"t1", "a1", 3>, <"t2", "a5", 1>, <"t4", "a4", 6>, <"t2, "a3", 7> ]	|
+| Output = {									|
+| 	<"t1", "a1", 3>: 17.64%, ( = 3 / 17, where 17=3+1+6+7)			|
+| 	<"t2", "a5", 1>: 5.88%,							|
+| 	<"t4", "a4", 6>: 35.29%,						|
+| 	<"t2", "a3", 7>: 41.17%							|
+| }										|
+--------------------------------------------------------------------------------
+
+Function2: takes the list of tuples assigned for an agent as input and a threshold percentage value. Returns only those tuples 
+ whose percentage is greater than input
+--------------------------------------------------------------------------------
+| Example:									|
+| input = [ <"t1", "a1", 3>, <"t2", "a5", 1>, <"t4", "a4", 6>, <"t2, "a3", 7> ]	|
+| Percentage = 20%								|
+| Output = {									|							|
+| 	<"t4", "a4", 6>: 35.29%,						|
+| 	<"t2", "a3", 7>: 41.17%							|
+| }										|
+--------------------------------------------------------------------------------
+
+-> Whichever function call is used, the returned map sould be printed in a human readable format.

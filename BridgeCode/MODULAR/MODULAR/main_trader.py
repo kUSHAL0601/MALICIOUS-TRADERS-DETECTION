@@ -4,12 +4,12 @@ import numpy as np
 from sklearn.cluster import KMeans
 
 
-files = list(os.listdir("feature_rbf_per_secs/"))
+files = list(os.listdir("features_rbf_per_sec/"))
 files.sort()
 #print(files)
 d={}
 def do_update(f,cluster_center=[]):
-	(trader,timestamp,features,severity,labels_gt)=read_file("feature_rbf_per_secs/"+f)
+	(trader,timestamp,features,severity,labels_gt)=read_file("features_rbf_per_sec/"+f)
 	features=np.array(features)
 	traders=list(set(trader))
 	for i in traders:

@@ -1,0 +1,40 @@
+Eligibility Traces based transaction choosing
+---------------------------------------------
+
+Input: <Trader ID, timestamp, <Feature Vector>, severity> tuples, k - transactions for each analyst
+
+NOTE: Each analyst has their own versions of frequency and eligibility values, i.e. eligibility and
+frequency values are traced separately and differently by each analyst.
+
+Algorithm:
+1. Cluster as per input tuples
+2. For each analyst, assign a cluster.
+3. For each analyst load their eligibility values table (initially all 0.0) and 
+frequency table (initially 0 for all traders).
+	a. Create new entry for new traders and set eligibility and frequency values as zero.
+4. For i = 1 to k:
+	Max eligibiliity = 0
+	topTuple = 0
+	for each tuple <tj, time, fv, sj> in cluster:
+		NewValue = (Eligibility E[tj] + freq[tj] + 1)*sj
+		if Max Eligibility < NewValue:
+			Max Eligibility = NewValue
+			topTuple = this
+	Add topTuple to the list of tuples to be analyzed
+
+	For all traders tj:
+		freq[tj] += Number of times they appeared in input tuples
+		if tj in topTuple:
+			E[tj in topTuple] = 0.25*((E[tj] + freq[tj] + 1)*sj)
+		else:
+			E[tj] = 0.9*E[tj]
+5. return k top tuples
+
+
+PS:
+To optimize, in the step "for each tuple <tj, time, fv, sj> in cluster", instead of looping over each tuple,
+you can only loop over each traders unpicked tuples whose severity score is highest. That is complexity of this
+loop = number of unique traders in careful implementation.
+	
+		
+
