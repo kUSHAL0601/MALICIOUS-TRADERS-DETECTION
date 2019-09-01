@@ -701,6 +701,10 @@ print("OCSVM Precision",100*precision)
 print("OCSVM accuracy",100*accuracy/len(test_labels))
 print("OCSVM recall",100*recall/len(malicious_complete_data_arr))
 print("f measure", ((precision*recall)/(precision+recall)))
+true_pos_rate = 100*recall/len(malicious_complete_data_arr)
+false_positive = len(malicious_complete_data_arr) - recall
+true_negative = len(normal_complete_data_arr) -  false_positive
+false_pos_rate = false_positive/(false_positive +true_negative) 
 # print(len(clf1.support_vectors_))
 # print(clf1.score_samples(test_all_data_stnd))
 # print(len(clf1.decision_scores_[clf1.decision_scores_>clf1.threshold_])) 
