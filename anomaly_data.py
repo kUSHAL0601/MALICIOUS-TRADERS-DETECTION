@@ -1,3 +1,4 @@
+## Generate Data for training and finding optimal parameters
 import matplotlib.pyplot as plt
 from statistics import mean,stdev,median
 import csv
@@ -9,27 +10,8 @@ import pickle
 from sklearn.metrics import roc_auc_score
 from sklearn.svm import OneClassSVM as oc_svm 
 
-# set_folder = 'features_rbf_per_sec/feature_'
 
-def print_accuracy(train_arr,test_arr,trader_id):
-    if len(train_arr)==0 or len(test_arr)==0:
-        return
-    for i in range(len(train_arr)):
-        l1=len(train_arr[i])
-        l2=len(test_arr[i])
-        if l1==0 or l2==0:
-            continue
-        train_data=np.array([train_arr[i]]).T
-        test_data=np.array([test_arr[i]]).T
-        # clf=OCSVM(kernel ='rbf',gamma = 0.5)
-        print(len(train_arr))
-        clf = PCA(n_components =15)
-        clf.fit(train_arr)
-        y_pred=clf.predict(train_arr)
-        print("TRAINING ACCURACY for TRADER",trader_id,":",100 - (sum(y_pred)*100/l1))
-        y_pred=clf.predict(test_data)
-        print("TESTING ACCURACY: ",sum(y_pred)*100/l2)
-
+print("Creating malicious <trader, timestamp> keys")
 malicious_keys=[]
 with open('attack.csv', 'r') as f1:
     reader1 = list(csv.reader(f1))
@@ -57,55 +39,9 @@ with open('attack.csv', 'r') as f1:
                     malicious_keys.append((time_stamp,trader_id))
 
 
-# print(malicious_keys)
-
-
-def cumulative_sum(arr):
-    cum_sum=[]
-    cur_sum=0
-    for i in arr:
-        cur_sum+=i
-        cum_sum.append(cur_sum)
-    return cum_sum
-
-def moving_average(arr,window_size):
-    l=len(arr)
-    ans=[]
-    for i in range(l - window_size + 1):
-        ans.append(mean(arr[i:i+window_size]))
-    return ans
-
-
-def draw(x,y,strx,stry,tit):
-        return
-        plt.plot(x,y)
-        plt.title(tit)
-        plt.xlabel(strx)
-        plt.ylabel(stry)
-        plt.xticks(rotation=90)
-        #plt.savefig(tit.replace(' ','') + '.png')
-        # plt.show()
-
-def draw2(y,x,strx,stry,tit):
-        return
-        plt.plot(x,y)
-        plt.title(tit)
-        plt.xlabel(strx)
-        plt.ylabel(stry)
-        plt.xticks(rotation=90)
-        #plt.savefig(tit.replace(' ','') + '.png')
-
-def draw_hist(x,strx,stry,tit):
-        return
-        plt.title(tit)
-        plt.xlabel(strx)
-        plt.ylabel(stry)
-        plt.xticks(rotation=90)
-        plt.hist(x,bins=20)
-        #plt.savefig(tit.replace(' ','') + '_hist.png')
-
 traders=[]
 trader_list = []
+print("Creating non malicious <trader, timestamp> keys")
 with open('message.csv', 'r') as f:
     reader = list(csv.reader(f))
     trader_timestamp_dict={}
@@ -158,19 +94,9 @@ user_order=[]
 ## Standardize data
 
 
-
-
-
-# trader_list = [v for v in trader_timestamp_dict.values()]
-# for key, value in trader_timestamp_dict.iteritems():
-#     temp = [key,value]
-#     trader_list.append(temp)
+print("Creating feature vectors")
 trader_arr = np.asarray(trader_list)
-# print(len(traders))
-# print(len(set(trader_arr[:,0])))
-# print(len(keys))
-# malicious_complete_data = np.zeros((len(malicious_keys),16))
-# normal_complete_data = np.zeros((len(traders)-len(malicious_keys),16))
+
 malicious_complete_data = []
 normal_complete_data = []
 
@@ -179,94 +105,6 @@ normal_labels = []
 all_labels = []
 data_a1_buy_stddev=[]
 malicious_data_a1_buy_stddev=[]
-data_a1_cumulative_buy_stddev=[]
-data_a1_cumulative_mean_buy=[]
-data_a1_cumulative_mean_sell=[]
-data_a1_cumulative_sell_stddev=[]
-data_a1_cumulative_sum_buy=[]
-data_a1_cumulative_sum_sell=[]
-data_a1_cumulative_vol_buy_stddev=[]
-data_a1_cumulative_vol_mean_buy=[]
-data_a1_cumulative_vol_mean_sell=[]
-data_a1_cumulative_vol_sell_stddev=[]
-data_a1_cumulative_vol_sum_buy=[]
-data_a1_cumulative_vol_sum_sell=[]
-data_a1_max_buy=[]
-data_a1_max_sell=[]
-data_a1_mean_buy=[]
-data_a1_mean_sell=[]
-data_a1_median_buy=[]
-data_a1_median_sell=[]
-data_a1_min_buy=[]
-data_a1_min_sell=[]
-data_a1_mov_avg_buy_stddev=[]
-data_a1_mov_avg_cumulative_buy_stddev=[]
-data_a1_mov_avg_cumulative_max_buy=[]
-data_a1_mov_avg_cumulative_max_sell=[]
-data_a1_mov_avg_cumulative_mean_buy=[]
-data_a1_mov_avg_cumulative_mean_sell=[]
-data_a1_mov_avg_cumulative_median_buy=[]
-data_a1_mov_avg_cumulative_median_sell=[]
-data_a1_mov_avg_cumulative_min_buy=[]
-data_a1_mov_avg_cumulative_vol_min_sell=[]
-data_a1_mov_avg_cumulative_sell_stddev=[]
-data_a1_mov_avg_cumulative_vol_sum_buy=[]
-data_a1_mov_avg_cumulative_vol_sum_sell=[]
-data_a1_mov_avg_max_buy=[]
-data_a1_mov_avg_max_sell=[]
-data_a1_mov_avg_mean_buy=[]
-data_a1_mov_avg_mean_sell=[]
-data_a1_mov_avg_median_buy=[]
-data_a1_mov_avg_median_sell=[]
-data_a1_mov_avg_min_buy=[]
-data_a1_mov_avg_min_sell=[]
-data_a1_mov_avg_sell_stddev=[]
-data_a1_mov_avg_sum_buy=[]
-data_a1_mov_avg_sum_sell=[]
-data_a1_mov_avg_vol_buy_stddev=[]
-data_a1_mov_avg_vol_max_buy=[]
-data_a1_mov_avg_vol_max_sell=[]
-data_a1_mov_avg_vol_mean_buy=[]
-data_a1_mov_avg_vol_mean_sell=[]
-data_a1_mov_avg_cumulative_median_buy=[]
-data_a1_mov_avg_cumulative_vol_median_sell=[]
-data_a1_mov_avg_cumulative_vol_min_buy=[]
-data_sum_buy=[]
-data_sum_sell=[]
-data_a1_vol_sum_buy=[]
-data_a1_sell_stddev=[]
-data_a1_vol_buy_stddev=[]
-data_a1_vol_max_buy=[]
-data_a1_vol_max_sell=[]
-data_a1_vol_sum_sell=[]
-data_a1_vol_sum_buy=[]
-data_a1_vol_sell_stddev=[]
-data_a1_vol_min_sell=[]
-data_a1_vol_min_buy=[]
-data_a1_vol_median_sell=[]
-data_a1_vol_median_buy=[]
-data_a1_vol_mean_sell=[]
-data_a1_vol_mean_buy=[]
-data_a1_vol_max_sell=[]
-data_a1_vol_max_buy=[]
-data_a1_mov_avg_vol_sum_sell=[]
-data_a1_mov_avg_vol_sum_buy=[]
-data_a1_mov_avg_vol_sell_stddev=[]
-data_a1_mov_avg_vol_min_sell=[]
-data_a1_mov_avg_vol_min_buy=[]
-data_a1_mov_avg_vol_min_sell=[]
-data_a1_mov_avg_vol_median_buy=[]
-data_a1_mov_avg_vol_median_sell=[]
-data_a1_mov_avg_cumulative_sum_buy=[]
-data_a1_mov_avg_cumulative_sum_sell=[]
-data_a1_mov_avg_cumulative_min_sell=[]
-data_a1_mov_avg_cumulative_vol_max_buy=[]
-data_a1_mov_avg_cumulative_vol_max_sell=[]
-data_a1_mov_avg_cumulative_vol_mean_sell=[]
-data_a1_mov_avg_cumulative_vol_mean_buy=[]
-data_a1_mov_avg_cumulative_vol_median_buy=[]
-data_a1_mov_avg_cumulative_vol_buy_stddev=[]
-data_a1_mov_avg_cumulative_vol_sell_stddev=[]
 
 a1_sum_buy=[]
 a1_sum_sell=[]
@@ -553,7 +391,7 @@ for i in range(1,len(malicious_complete_data_arr)):
 
 malicious_complete_data_arr = np.hstack((malicious_complete_data_arr,diff_malicious))
 
-
+print("Saving trades(feature vectors) ...")
 file2 = open('non_malicious_timestamps','wb')
 pickle.dump(non_malicious_timestamps,file2)
 
