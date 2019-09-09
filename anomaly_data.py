@@ -62,11 +62,11 @@ with open('message.csv', 'r') as f:
         match_timestamp=entry[13]
         traders.append(trader_id)
 
-        # print(time_stamp,direction,trader_id)
+        # Initialise dictionaries to store data
         if (time_stamp,trader_id) not in trader_timestamp_dict:
             trader_timestamp_dict[(time_stamp,trader_id)]={}
-            trader_timestamp_dict[(time_stamp,trader_id)]['buying']={}
-            trader_timestamp_dict[(time_stamp,trader_id)]['buying']['price']=[]
+            trader_timestamp_dict[(time_stamp,trader_id)]['buying']={} # dictionary for buy requests 
+            trader_timestamp_dict[(time_stamp,trader_id)]['buying']['price']=[] # price of each buy request 
             trader_timestamp_dict[(time_stamp,trader_id)]['buying']['volume']=[]
             trader_timestamp_dict[(time_stamp,trader_id)]['selling']={}
             trader_timestamp_dict[(time_stamp,trader_id)]['selling']['price']=[]
@@ -184,7 +184,7 @@ mal_traders = []
 non_malicious_timestamps = []
 malicious_timestamps = []
 for i in keys:
-    # print(i)
+    
     if i not in malicious_keys:
         non_malicious_timestamps.append(i[0])
         non_malicious.append(i[1])
@@ -358,8 +358,7 @@ for i in keys:
 normal_complete_data_arr = np.asarray(normal_complete_data)
 # malicious_complete_data.pop(0)
 malicious_complete_data_arr = np.asarray(malicious_complete_data)            
-# print(normal_complete_data_arr.shape)
-print(malicious_keys)
+
 mal_trader = {}
 
 for k,c in malicious_keys:
@@ -367,12 +366,6 @@ for k,c in malicious_keys:
 for k,c in malicious_keys:
     mal_trader[c] += 1
 
-print(len(malicious_complete_data))
-print(mal_trader)
-# feat_select = np.zeros(normal_complete_data_arr.shape[1])
-# for value in feature_selected:
-#     np.delete(normal_complete_data_arr,feature_selected[value],axis =1)
-#     np.delete(malicious_complete_data_arr,feature_selected[value],axis =1)
 
 ## new features difference of buy, mean, sell,mean 
 (shape1,shape2) = normal_complete_data_arr.shape[0],normal_complete_data_arr.shape[1]
