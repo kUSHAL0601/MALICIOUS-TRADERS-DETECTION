@@ -47,6 +47,7 @@ def cto(no_analysts,threshold_k,index,option_distance,option_clustering,severity
 				frequency[j][i]=0
 	traders.sort()
 	kmeans=do_cluster(features,no_analysts,cluster_centers,severity,trader,option_clustering)
+	print('Eligibility based allocation')
 	labels=kmeans.labels_
 	map_analyst_labels={}
 	cluster_size = []

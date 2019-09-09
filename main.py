@@ -44,6 +44,13 @@ elif option_algo=="Top_K":
 elif option_algo=="Randomization":
 	from cto_randomization import *
 
+print()
+print()
+print()
+print('Chosen configuration : ',"Distance:",option_distance,"Clustering:",option_clustering,"CTO:",option_algo)
+print()
+print()
+
 def get_positives_negatives(allocation):
 	alloc_pos_neg={}
 	for i in allocation:
@@ -87,6 +94,7 @@ for i in range(dir_len-iter_):
 	sum_pos_neg = 0
 	# sum_cstr = 0 
 	if i == 0:
+		print('Initializing cluster centers randomly')
 		allocation,cluster_center,cluster_size=cto(n_analyst,no_of_obs_trades,i,option_distance,option_clustering,sev_threshold,file_dir)
 		print(allocation)
 		# alloc_pos_neg=get_positives_negatives(allocation)
@@ -102,8 +110,9 @@ for i in range(dir_len-iter_):
 		# pos_neg_clstr.append(sum_pos_neg)
 		# sum_cluster.append(sum_cstr)	
 	else:
+		print('Initializing cluster centers based on previous iteration')
 		allocation,cluster_center,cluster_size=cto(n_analyst,no_of_obs_trades,i,option_distance,option_clustering,sev_threshold,file_dir,cluster_center)
-		# print(allocation)
+		print(allocation)
 		# alloc_pos_neg=get_positives_negatives(allocation)
 		# for key,item in alloc_pos_neg.items():
 		# 	print("accuracy based on cluster",item['neg']/no_of_obs_trades)#/cluster_size[key])

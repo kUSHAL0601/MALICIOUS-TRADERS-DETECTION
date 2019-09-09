@@ -22,6 +22,7 @@ def cto(no_analysts,threshold_k,index,option_distance,option_clustering,severity
 	traders=list(set(trader))
 	traders.sort()
 	kmeans=do_cluster(features,no_analysts,cluster_centers,severity,trader,option_clustering)
+	print('Randomization based allocation')
 	labels=kmeans.labels_
 	map_analyst_labels={}
 	cluster_size = []
