@@ -1,26 +1,27 @@
 import os
 import sys
 option_distance="Euclidean"
-options_distance={1:"Euclidean",2:"Mahalanobis"}
+options_distance={1:"Euclidean"}
 option_clustering="Basic"
-options_clustering={1:"Basic",2:"Weighted",3:"NormalizedT"}
+#options_clustering={1:"Basic",2:"Weighted",3:"NormalizedT"}
+options_clustering={1:"Basic",2:"Weighted"}
 option_algo="Eligibility"
 options_algo={1:"Top_K",2:"Eligibility",3:"Randomization"}
 
 
-print("Distance Measure")
-print(1,"Euclidean")
-print(2,"Mahalanobis")
-z=input("Select Distance Measure:")
-try:
-	option_distance=options_distance[int(z)]
-except:
-	pass
+#print("Distance Measure")
+#print(1,"Euclidean")
+#print(2,"Mahalanobis")
+#z=input("Select Distance Measure:")
+#try:
+#	option_distance=options_distance[int(z)]
+#except:
+#	pass
 print()
 print("Clustering Algos")
 print(1,"Basic(Kmeans)")
 print(2,"Weighted(Kmeans with severity as weights)")
-print(3,"NormalizedT(Kmeans with normalized[based on trader] severity as weights)")
+#print(3,"NormalizedT(Kmeans with normalized[based on trader] severity as weights)")
 z=input("Select Clustering Algo:")
 try:
 	option_clustering=options_clustering[int(z)]
