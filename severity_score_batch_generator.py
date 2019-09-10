@@ -12,16 +12,15 @@ from sklearn.svm import OneClassSVM as oc_svm
 import pickle
 
 
-filename = 'classifier.sav'
+filename = 'classifier.sav' ## Load the classifier
 clf1 = pickle.load(open(filename, 'rb')) 
 roc = []
 recall_list = []
 
-# clf1.threshold_ = i
 predicted1 = clf1.predict(test_all_data_stnd)
 
-score_test = clf1.score_samples(test_all_data_stnd)
-print("min score:%f and max score:%f"%(min(score_test),max(score_test)))
+score_test = clf1.score_samples(test_all_data_stnd) ## classification score on new data
+#print("min score:%f and max score:%f"%(min(score_test),max(score_test)))
 min_score_test = min(score_test)
 max_score_test = max(score_test)
 # print(predicted)
