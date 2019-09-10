@@ -1,1 +1,6 @@
-File 1: anomaly_train.py
+File 1: anomaly_data.py # generates feature vectors from data
+File 2: anomaly_train.py # Finds optimal nu and gamma. Also, generates roc_values.txt file.
+File 3: severity_score_batch_generator.py # Generates batches of data: 1. Batches of size 100 in folder features_rbf_batch and 2. Batches of data per second in folder features_rbf_per_sec
+Input to file 3: Best value corresponding to recall, usually the top value in roc_values.txt.
+
+File 4: Main.py, execute it to get interface which gives malicious trades and malicious traders. 
