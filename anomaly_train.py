@@ -3,12 +3,13 @@ from statistics import mean,stdev,median
 import csv
 import math
 import numpy as np
-from pyod.models.ocsvm import OCSVM
-from pyod.models.pca import PCA 
+# from pyod.models.ocsvm import OCSVM
+# from pyod.models.pca import PCA 
 from sklearn.metrics import roc_auc_score
 from sklearn.svm import OneClassSVM as oc_svm 
 import pickle
 
+print("Loading data ..")
 file2 = open('non_malicious_timestamps','rb')
 non_malicious_timestamps = pickle.load(file2)
 
@@ -39,25 +40,23 @@ for i in range(len(all_data)):
         all_labels.append(1)
     else:
         all_labels.append(-1)
-# print(all_labels.count(1))        
+       
 ## train_Data
-# print(0.8*len(normal_complete_data_arr))
+
 train_normal_arr = normal_complete_data_arr[0:int(0.8*len(normal_complete_data_arr))]
 # train_mal_arr = 
 test_normal_arr =  normal_complete_data_arr[int(0.8*len(normal_complete_data_arr)):len(normal_complete_data_arr)]
 
 test_all_data = np.vstack((test_normal_arr,malicious_complete_data_arr))
 
+## Standardize data
+
 train_normal_arr_stnd_2 = train_normal_arr - train_normal_arr.mean(axis = 0)
-# negatives_mat = negatives_mat - negatives_mat.mean(axis =0)
-# all_data_mat = all_data_mat - all_data_mat.mean(axis=0)
 
 train_normal_arr_stnd = train_normal_arr_stnd_2/(train_normal_arr_stnd_2.std(axis = 0)+1)
 
-# test_all_data_stnd = test_all_data - test_all_data.mean(axis = 0)
 test_all_data_stnd = test_all_data - train_normal_arr.mean(axis = 0)
-# negatives_mat = negatives_mat - negatives_mat.mean(axis =0)
-# all_data_mat = all_data_mat - all_data_mat.mean(axis=0)
+
 
 test_all_data_stnd = test_all_data_stnd/(train_normal_arr_stnd_2.std(axis = 0)+1)
 ## Generate labels
@@ -73,6 +72,7 @@ test_keys = non_malicious[int(0.8*len(normal_complete_data_arr)):len(all_labels)
 
 
 train_data_params = [train_normal_arr.mean(axis = 0),train_normal_arr_stnd_2.std(axis = 0)+1]
+print("Storing train mean and standard deviation")
 file2 = open('train_mean_std.txt','wb')
 pickle.dump(train_data_params,file2)
 
@@ -86,10 +86,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report
 # print(np.arange(2**-2,2**2,0.05))
+
 tuned_parameters = [{'kernel': ['rbf'], 'gamma': np.arange(2**-2,2**2,0.05),
                      'nu':  np.arange(0.05,0.4,0.05)}]
 scores = ['recall']
-
+print("kernel:rbf")
+print("Gamma over range %f to %f"%(2**-2,2**2))
+print("Nu over range %f to %f"%(0.05,0.4))
 for score in scores:
     print("# Tuning hyper-parameters for %s" % score)
     print()
@@ -139,9 +142,8 @@ score_test = clf1.score_samples(test_all_data_stnd)
 # print("min score:%f and max score:%f"%(min(score_test),max(score_test)))
 min_score_test = min(score_test)
 max_score_test = max(score_test)
-# print(test_labels)
-# for k in np.arange(-0.01,0.01,0.0005):
-# print("for",k)
+## Evaluating different thresholds
+print("Evaluating different thresholds ... ")
 from sklearn.metrics import roc_curve, auc
 roc_auc = []
 fpr_list = []
@@ -221,6 +223,7 @@ data_to_show = np.asarray(data_to_show)
 # [item for items, c in Counter(traders_mal).most_common() 
                                       # for item in [items] * c]
 # print(severity)
+print("Writing data to roc_values.txt sorted by recall")
 with open('roc_values.txt','w') as f:
     f.writelines("%s \n" %('[threshold   prec   recall   accuracy   auc]'))
     f.writelines("%s \n" % val for val in data_to_show)
