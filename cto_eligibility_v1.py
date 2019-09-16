@@ -69,8 +69,8 @@ def cto(no_analysts,threshold_k,index,option_distance,option_clustering,severity
 			vis.add(x)
 			top_labels.append(x)
 		update_frequency(map_analyst_labels[i],trader,i)
-		map_analyst_labels[i]=top_labels
-		inc_trades+=top_labels
+		map_analyst_labels[i]=list(set(top_labels))
+		inc_trades+=list(set(top_labels))
 		#map_analyst_labels[i]=map_analyst_labels[i][:threshold_k]
 	for i in map_analyst_labels:
 		x=[]
