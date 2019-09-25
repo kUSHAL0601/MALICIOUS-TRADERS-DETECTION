@@ -9,9 +9,16 @@ import pickle
 from sklearn.metrics import roc_auc_score
 from sklearn.svm import OneClassSVM as oc_svm 
 
-set_folder_per_sec = 'features_rbf_per_sec/feature_'
-set_folder_per_batch = 'features_rbf_batch/feature_'
+
+
+set_folder_per_batch = 'features_rbf_batch'
 set_threshold = 1.47256
+batch_size = 100
+## create a folder named features_rbf_per_sec if generate_per_sec = True 
+generate_per_sec_data = False
+
+if generate_per_sec_data:
+    set_folder_per_sec = 'features_rbf_per_sec/feature_'
 
 # print(malicious_keys)
 print("Loading classifier ..")
@@ -357,29 +364,30 @@ feature_write.view('U32,U32,U32,U32,U32,U32,U32,U32,U32,U32,U32,U32,U32,U32,U32,
 all_feature_dict = {}
 # timestamp_stack = timestamp_stack.tolist()
 # print(timestamp_stack[0])
-timestamp_set_list = list(set(timestamp_all_list))
-timestamp_set_list.sort()
-for key in timestamp_set_list:
-    all_feature_dict[(key)] = {}
-print("Preparing batches per sec")
-for key in timestamp_set_list:
-    # print(key)
-    count = 0
-    for i in range(len(feature_write)):
-        
-        if (key == feature_write[i][1]):
-            # print("key, feat_1",key,feature_write[i][1])
-            count +=1
-            all_feature_dict[(key)][count] = feature_write[i]
-#usable
-for val in timestamp_set_list: 
+if generate_per_sec_data :
+    timestamp_set_list = list(set(timestamp_all_list))
+    timestamp_set_list.sort()
+    for key in timestamp_set_list:
+        all_feature_dict[(key)] = {}
+    print("Preparing batches per sec")
+    for key in timestamp_set_list:
+        # print(key)
+        count = 0
+        for i in range(len(feature_write)):
+            
+            if (key == feature_write[i][1]):
+                # print("key, feat_1",key,feature_write[i][1])
+                count +=1
+                all_feature_dict[(key)][count] = feature_write[i]
+    #usable
+    for val in timestamp_set_list: 
 
-    with open(set_folder_per_sec+val+'.csv','w') as f:
-        
-        csv_writer = csv.writer(f)
-        csv_writer.writerow(['trader', 'timestamp', 'a1_sum_buy','a1_mean_buy','a1_median_buy','a1_min_buy','a1_max_buy','a1_vol_sum_buy','a1_vol_mean_buy','a1_vol_median_buy','a1_vol_min_buy','a1_vol_max_buy',' a1_sum_sell','a1_mean_sell','a1_median_sell','a1_min_sell','a1_max_sell','a1_vol_sum_sell','a1_vol_mean_sell','a1_vol_median_sell','a1_vol_min_sell','a1_vol_max_sell','diff_a1_sum_buy','diff_a1_mean_buy','diff_a1_median_buy','diff_a1_min_buy','diff_a1_max_buy','diff_a1_vol_sum_buy','diff_a1_vol_mean_buy','diff_a1_vol_median_buy','diff_a1_vol_min_buy','diff_a1_vol_max_buy',' diff_a1_sum_sell','diff_a1_mean_sell','diff_a1_median_sell','diff_a1_min_sell','diff_a1_max_sell','diff_a1_vol_sum_sell','diff_a1_vol_mean_sell','diff_a1_vol_median_sell','diff_a1_vol_min_sell','diff_a1_vol_max_sell','severity','labels'])
-        for keys,item in all_feature_dict[(val)].items():
-            csv_writer.writerow(item)
+        with open(set_folder_per_sec+val+'.csv','w') as f:
+            
+            csv_writer = csv.writer(f)
+            csv_writer.writerow(['trader', 'timestamp', 'a1_sum_buy','a1_mean_buy','a1_median_buy','a1_min_buy','a1_max_buy','a1_vol_sum_buy','a1_vol_mean_buy','a1_vol_median_buy','a1_vol_min_buy','a1_vol_max_buy',' a1_sum_sell','a1_mean_sell','a1_median_sell','a1_min_sell','a1_max_sell','a1_vol_sum_sell','a1_vol_mean_sell','a1_vol_median_sell','a1_vol_min_sell','a1_vol_max_sell','diff_a1_sum_buy','diff_a1_mean_buy','diff_a1_median_buy','diff_a1_min_buy','diff_a1_max_buy','diff_a1_vol_sum_buy','diff_a1_vol_mean_buy','diff_a1_vol_median_buy','diff_a1_vol_min_buy','diff_a1_vol_max_buy',' diff_a1_sum_sell','diff_a1_mean_sell','diff_a1_median_sell','diff_a1_min_sell','diff_a1_max_sell','diff_a1_vol_sum_sell','diff_a1_vol_mean_sell','diff_a1_vol_median_sell','diff_a1_vol_min_sell','diff_a1_vol_max_sell','severity','labels'])
+            for keys,item in all_feature_dict[(val)].items():
+                csv_writer.writerow(item)
 
 
 # print(all_feature_dict[(timestamp_set_list[3])])
@@ -392,20 +400,52 @@ for val in timestamp_set_list:
 #     csv_writer.writerows(feature_write)
 
 #usable
-print("Preparing batches of size 100 ...")
-for i in range(int(len(feature_write)/100)+1):
-    with open(set_folder_per_batch+str(i)+'.csv','w',) as f:
+print("Preparing batches of size"+str(batch_size)+" ...")
+for i in range(int(len(feature_write)/batch_size)+1):
+    with open(set_folder_per_batch+"/feature_"+str(i)+'.csv','w',) as f:
     # with open('your_file.txt', 'w') as f:
-        if i != int(len(feature_write)/100): 
+        if i != int(len(feature_write)/batch_size): 
             csv_writer = csv.writer(f)
             # f.write(str(count))
             # csv_writer.writerow([str(len(cto_input))])
             # csv_writer.writerow(['trader', 'timestamp', 'a1_sum_buy','a1_mean_buy','a1_median_buy','a1_min_buy','a1_max_buy','a1_vol_sum_buy','a1_vol_mean_buy','a1_vol_median_buy','a1_vol_min_buy','a1_vol_max_buy',' a1_sum_sell','a1_mean_sell','a1_median_sell','a1_min_sell','a1_max_sell','a1_vol_sum_sell','a1_vol_mean_sell','a1_vol_median_sell','a1_vol_min_sell','a1_vol_max_sell','diff_a1_sum_buy','diff_a1_mean_buy','diff_a1_median_buy','diff_a1_min_buy','diff_a1_max_buy','diff_a1_vol_sum_buy','diff_a1_vol_mean_buy','diff_a1_vol_median_buy','diff_a1_vol_min_buy','diff_a1_vol_max_buy',' diff_a1_sum_sell','diff_a1_mean_sell','diff_a1_median_sell','diff_a1_min_sell','diff_a1_max_sell','diff_a1_vol_sum_sell','diff_a1_vol_mean_sell','diff_a1_vol_median_sell','diff_a1_vol_min_sell','diff_a1_vol_max_sell','severity','labels'])
             csv_writer.writerow(['trader', 'timestamp', 'a1_sum_buy','a1_min_buy','a1_max_buy',' a1_sum_sell','a1_min_sell','a1_max_sell','diff_a1_sum_buy','diff_a1_min_buy','diff_a1_max_buy',' diff_a1_sum_sell','diff_a1_min_sell','diff_a1_max_sell','severity','labels'])
-            csv_writer.writerows(feature_write[100*i:100*(i+1)])
-        elif i == int(len(feature_write)/100):
+            csv_writer.writerows(feature_write[batch_size*i:batch_size*(i+1)])
+        elif i == int(len(feature_write)/batch_size):
             csv_writer = csv.writer(f)
             # f.write(str(count))
             # csv_writer.writerow([str(len(cto_input))])
             csv_writer.writerow(['trader', 'timestamp', 'a1_sum_buy','a1_min_buy','a1_max_buy',' a1_sum_sell','a1_min_sell','a1_max_sell','diff_a1_sum_buy','diff_a1_min_buy','diff_a1_max_buy',' diff_a1_sum_sell','diff_a1_min_sell','diff_a1_max_sell','severity','labels'])
-            csv_writer.writerows(feature_write[100*i:len(feature_write)])
+            csv_writer.writerows(feature_write[batch_size*i:len(feature_write)])
+
+# feature_write_per_min = {}
+
+
+# with open('feature_vector_rbf_min.csv','w',) as f:
+#     csv_writer = csv.writer(f)
+#         # f.write(str(count))
+#         # csv_writer.writerow([str(len(cto_input))])
+#     csv_writer.writerow(['trader', 'timestamp', 'a1_sum_buy','a1_mean_buy','a1_median_buy','a1_min_buy','a1_max_buy','a1_vol_sum_buy','a1_vol_mean_buy','a1_vol_median_buy','a1_vol_min_buy','a1_vol_max_buy',' a1_sum_sell','a1_mean_sell','a1_median_sell','a1_min_sell','a1_max_sell','a1_vol_sum_sell','a1_vol_mean_sell','a1_vol_median_sell','a1_vol_min_sell','a1_vol_max_sell','diff_a1_sum_buy','diff_a1_mean_buy','diff_a1_median_buy','diff_a1_min_buy','diff_a1_max_buy','diff_a1_vol_sum_buy','diff_a1_vol_mean_buy','diff_a1_vol_median_buy','diff_a1_vol_min_buy','diff_a1_vol_max_buy',' diff_a1_sum_sell','diff_a1_mean_sell','diff_a1_median_sell','diff_a1_min_sell','diff_a1_max_sell','diff_a1_vol_sum_sell','diff_a1_vol_mean_sell','diff_a1_vol_median_sell','diff_a1_vol_min_sell','diff_a1_vol_max_sell','severity','labels'])
+#     csv_writer.writerows(feature_write)
+# with open('myfile.txt', 'w') as f:
+    # csv_writer = csv.writer(f)
+    # csv_writer.writerows(cto_input)
+# with open('feature_vector.csv','r') as f:
+#     reader = list(csv.reader(f))
+#     reader = np.asarray(reader)
+#     np.sort(reader,order = 'timestamp')
+#     print(reader[2])
+# print(predicted)
+# print(test_labels)
+# for index in indices:
+#     print(malicious_keys[int(index-0.2*len(normal_complete_data_arr))])
+# print(len(test_all_data_stnd))
+# print(len(indices)/len(test_all_data_stnd))
+
+# print(max(roc))
+# fig1,ax1 = plt.subplots(1,1)
+# print(len(roc))
+# ax1.scatter(np.arange(len(recall_list)),recall_list)
+# # ax2.scatter(np.arange(len(clf1.decision_scores_)),clf1.decision_scores_)
+# plt.show()
+# print(indices_positive/len(test_labels))
