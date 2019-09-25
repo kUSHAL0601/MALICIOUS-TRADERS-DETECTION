@@ -1,3 +1,4 @@
+## Generate Data for training and finding optimal parameters
 import matplotlib.pyplot as plt
 from statistics import mean,stdev,median
 import csv
@@ -9,8 +10,8 @@ import pickle
 from sklearn.metrics import roc_auc_score
 from sklearn.svm import OneClassSVM as oc_svm 
 
-# set_folder = 'features_rbf_per_sec/feature_'
 
+print("Creating malicious <trader, timestamp> keys")
 malicious_keys=[]
 with open('attack.csv', 'r') as f1:
     reader1 = list(csv.reader(f1))
@@ -40,6 +41,7 @@ with open('attack.csv', 'r') as f1:
 
 traders=[]
 trader_list = []
+print("Creating non malicious <trader, timestamp> keys")
 with open('message.csv', 'r') as f:
     reader = list(csv.reader(f))
     trader_timestamp_dict={}
@@ -60,11 +62,11 @@ with open('message.csv', 'r') as f:
         match_timestamp=entry[13]
         traders.append(trader_id)
 
-        # print(time_stamp,direction,trader_id)
+        # Initialise dictionaries to store data
         if (time_stamp,trader_id) not in trader_timestamp_dict:
             trader_timestamp_dict[(time_stamp,trader_id)]={}
-            trader_timestamp_dict[(time_stamp,trader_id)]['buying']={}
-            trader_timestamp_dict[(time_stamp,trader_id)]['buying']['price']=[]
+            trader_timestamp_dict[(time_stamp,trader_id)]['buying']={} # dictionary for buy requests 
+            trader_timestamp_dict[(time_stamp,trader_id)]['buying']['price']=[] # price of each buy request 
             trader_timestamp_dict[(time_stamp,trader_id)]['buying']['volume']=[]
             trader_timestamp_dict[(time_stamp,trader_id)]['selling']={}
             trader_timestamp_dict[(time_stamp,trader_id)]['selling']['price']=[]
@@ -88,6 +90,11 @@ keys.sort()
 user_order=[]
 
 
+
+## Standardize data
+
+
+print("Creating feature vectors")
 trader_arr = np.asarray(trader_list)
 
 malicious_complete_data = []
@@ -177,7 +184,7 @@ mal_traders = []
 non_malicious_timestamps = []
 malicious_timestamps = []
 for i in keys:
-    # print(i)
+    
     if i not in malicious_keys:
         non_malicious_timestamps.append(i[0])
         non_malicious.append(i[1])
@@ -208,7 +215,16 @@ for i in keys:
             a1_median_sell = 0
             a1_min_sell = 0
             a1_max_sell = 0  
-       
+        if  len((trader_timestamp_dict[i]['buying']['price']))>1:
+            # a1_timestamps_buy_stddev.append(i[0])
+            a1_buy_stddev = stdev(trader_timestamp_dict[i]['buying']['price'])
+        elif len((trader_timestamp_dict[i]['buying']['price']))>=0:
+            a1_buy_stddev = 0
+        if  len((trader_timestamp_dict[i]['selling']['price']))>1:
+            # a1_timestamps_sell_stddev.append(i[0])
+            a1_sell_stddev = stdev(trader_timestamp_dict[i]['selling']['price'])
+        elif len((trader_timestamp_dict[i]['buying']['price']))>=0:
+            a1_sell_stddev = 0
 
         a1_vol_sum_buy = sum(trader_timestamp_dict[i]['buying']['volume'])
         a1_vol_sum_sell = sum(trader_timestamp_dict[i]['selling']['volume'])
@@ -237,8 +253,19 @@ for i in keys:
             a1_vol_median_sell = 0
             a1_vol_min_sell = 0
             a1_vol_max_sell = 0 
-
-        normal_complete_data.append([a1_sum_buy,a1_mean_buy,a1_min_buy,a1_max_buy,a1_vol_sum_buy,a1_vol_mean_buy,a1_vol_min_buy,a1_vol_max_buy, a1_sum_sell,a1_mean_sell,a1_min_sell,a1_max_sell,a1_vol_sum_sell,a1_vol_mean_sell,a1_vol_min_sell,a1_vol_max_sell])
+        if  len((trader_timestamp_dict[i]['buying']['volume']))>1:
+            # a1_vol_timestamps_buy_stddev.append(i[0])
+            a1_vol_buy_stddev = stdev(trader_timestamp_dict[i]['buying']['volume'])
+        elif  len((trader_timestamp_dict[i]['buying']['volume']))>=0:
+            # a1_vol_timestamps_buy_stddev.append(i[0])
+            a1_vol_buy_stddev = 0
+        if  len((trader_timestamp_dict[i]['selling']['volume']))>1:
+            # a1_vol_timestamps_sell_stddev.append(i[0])
+            a1_vol_sell_stddev = stdev(trader_timestamp_dict[i]['selling']['volume'])
+        if  len((trader_timestamp_dict[i]['selling']['volume']))>=0:
+            # a1_vol_timestamps_sell_stddev.append(i[0])
+            a1_vol_sell_stddev = 0
+        normal_complete_data.append([a1_sum_buy,a1_mean_buy,a1_median_buy,a1_min_buy,a1_max_buy,a1_vol_sum_buy,a1_vol_mean_buy,a1_vol_median_buy,a1_vol_min_buy,a1_vol_max_buy, a1_sum_sell,a1_mean_sell,a1_median_sell,a1_min_sell,a1_max_sell,a1_vol_sum_sell,a1_vol_mean_sell,a1_vol_median_sell,a1_vol_min_sell,a1_vol_max_sell])
         normal_labels.append(1)
         # all_labels.append(0)
     ## if i in malicious keys
@@ -272,7 +299,17 @@ for i in keys:
             malicious_a1_median_sell =0
             malicious_a1_min_sell = 0
             malicious_a1_max_sell = 0  
-      
+        if  len((trader_timestamp_dict[i]['buying']['price']))>1:
+            # a1_timestamps_buy_stddev.append(i[0])
+            malicious_a1_buy_stddev =stdev(trader_timestamp_dict[i]['buying']['price'])
+        elif len((trader_timestamp_dict[i]['buying']['price']))>=0:
+            malicious_a1_buy_stddev = 0
+        if  len((trader_timestamp_dict[i]['selling']['price']))>1:
+            # a1_timestamps_sell_stddev.append(i[0])
+            malicious_a1_sell_stddev = stdev(trader_timestamp_dict[i]['selling']['price'])
+        elif len((trader_timestamp_dict[i]['buying']['price']))>=0:
+            malicious_a1_sell_stddev = 0
+
         malicious_a1_vol_sum_buy = sum(trader_timestamp_dict[i]['buying']['volume'])
         malicious_a1_vol_sum_sell = sum(trader_timestamp_dict[i]['selling']['volume'])
         if  len((trader_timestamp_dict[i]['buying']['volume']))>0:
@@ -300,16 +337,28 @@ for i in keys:
             malicious_a1_vol_median_sell = 0
             malicious_a1_vol_min_sell = 0
             malicious_a1_vol_max_sell = 0
-        
-        malicious_complete_data.append([a1_sum_buy,a1_mean_buy,a1_min_buy,a1_max_buy,a1_vol_sum_buy,a1_vol_mean_buy,a1_vol_min_buy,a1_vol_max_buy, a1_sum_sell,a1_mean_sell,a1_min_sell,a1_max_sell,a1_vol_sum_sell,a1_vol_mean_sell,a1_vol_min_sell,a1_vol_max_sell])
+        if  len((trader_timestamp_dict[i]['buying']['volume']))>1:
+            # a1_vol_timestamps_buy_stddev.append(i[0])
+            malicious_a1_vol_buy_stddev = stdev(trader_timestamp_dict[i]['buying']['volume'])
+        elif  len((trader_timestamp_dict[i]['buying']['volume']))>=0:
+            # a1_vol_timestamps_buy_stddev.append(i[0])
+            malicious_a1_vol_buy_stddev = 0
+        if  len((trader_timestamp_dict[i]['selling']['volume']))>1:
+            # a1_vol_timestamps_sell_stddev.append(i[0])
+            malicious_a1_vol_sell_stddev = stdev(trader_timestamp_dict[i]['selling']['volume'])
+        if  len((trader_timestamp_dict[i]['selling']['volume']))>=0:
+            # a1_vol_timestamps_sell_stddev.append(i[0])
+            malicious_a1_vol_sell_stddev = 0
+        # a1_sum_buy,a1_mean_buy,a1_median_buy,a1_min_buy,a1_max_buy,a1_buy_stddev,a1_vol_sum_buy,a1_vol_mean_buy,a1_vol_median_buy,a1_vol_min_buy,a1_vol_max_buy, a1_vol_buy_stddev, a1_sum_sell,a1_mean_sell,a1_median_sell,a1_min_sell,a1_max_sell,a1_sell_stddev,a1_vol_sum_sell,a1_vol_mean_sell,a1_vol_median_sell,a1_vol_min_sell,a1_vol_max_sell,a1_vol_sell_stddev
+
+        malicious_complete_data.append([a1_sum_buy,a1_mean_buy,a1_median_buy,a1_min_buy,a1_max_buy,a1_vol_sum_buy,a1_vol_mean_buy,a1_vol_median_buy,a1_vol_min_buy,a1_vol_max_buy, a1_sum_sell,a1_mean_sell,a1_median_sell,a1_min_sell,a1_max_sell,a1_vol_sum_sell,a1_vol_mean_sell,a1_vol_median_sell,a1_vol_min_sell,a1_vol_max_sell])
         malicious_labels.append(-1)
         mal_traders.append(i[1])
         # all_labels.append(1)
 normal_complete_data_arr = np.asarray(normal_complete_data)
 # malicious_complete_data.pop(0)
 malicious_complete_data_arr = np.asarray(malicious_complete_data)            
-# print(normal_complete_data_arr.shape)
-print(malicious_keys)
+
 mal_trader = {}
 
 for k,c in malicious_keys:
@@ -317,12 +366,6 @@ for k,c in malicious_keys:
 for k,c in malicious_keys:
     mal_trader[c] += 1
 
-print(len(malicious_complete_data))
-print(mal_trader)
-# feat_select = np.zeros(normal_complete_data_arr.shape[1])
-# for value in feature_selected:
-#     np.delete(normal_complete_data_arr,feature_selected[value],axis =1)
-#     np.delete(malicious_complete_data_arr,feature_selected[value],axis =1)
 
 ## new features difference of buy, mean, sell,mean 
 (shape1,shape2) = normal_complete_data_arr.shape[0],normal_complete_data_arr.shape[1]
@@ -341,7 +384,7 @@ for i in range(1,len(malicious_complete_data_arr)):
 
 malicious_complete_data_arr = np.hstack((malicious_complete_data_arr,diff_malicious))
 
-
+print("Saving trades(feature vectors) ...")
 file2 = open('non_malicious_timestamps','wb')
 pickle.dump(non_malicious_timestamps,file2)
 
