@@ -3,13 +3,16 @@ from kmeans_clustering import *
 from distance import *
 #_non_normalized
 def cto(no_analysts,threshold_k,index,option_distance,option_clustering,severity_threshold,file_dir,cluster_centers=[]):
-	(trader,timestamp,features,severity)=read_file(file_dir+'/feature_'+str(index)+'.csv')
+	(trader,timestamp,features,severity,labels_gt)=read_file(file_dir+'/feature_vector_'+str(index)+'.csv')
 	features=update_features(features,option_distance)
-
+	labels_gt_arr = np.asarray(labels_gt)
+	print("pos",len(labels_gt_arr[labels_gt_arr>0]))
+	print("neg",len(labels_gt_arr[labels_gt_arr<0]))
+	pos_labels_gt = labels_gt.count(1)
+	neg_labels_gt = labels_gt.count(-1)
 	traders=list(set(trader))
 	traders.sort()
 	kmeans=do_cluster(features,no_analysts,cluster_centers,severity,trader,option_clustering)
-	print('Top-K based allocation')
 	labels=kmeans.labels_
 	map_analyst_labels={}
 	cluster_size = []
@@ -27,6 +30,6 @@ def cto(no_analysts,threshold_k,index,option_distance,option_clustering,severity
 		x=[]
 		for j in map_analyst_labels[i]:
 			if (severity[j]<severity_threshold):
-				x.append((trader[j],severity[j]))
+				x.append((trader[j],labels_gt[j],severity[j]))
 		map_analyst_labels[i]=x
-	return map_analyst_labels,kmeans.cluster_centers_,cluster_size
+	return map_analyst_labels,kmeans.cluster_centers_,cluster_size,neg_labels_gt

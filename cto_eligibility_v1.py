@@ -32,13 +32,13 @@ def cto(no_analysts,threshold_k,index,option_distance,option_clustering,severity
 		if i not in eligibility:
 			eligibility[i]={}
 			frequency[i]={}
-	(trader,timestamp,features,severity)=read_file(file_dir+'/feature_'+str(index)+'.csv')
+	(trader,timestamp,features,severity,labels_gt)=read_file(file_dir+'/feature_vector_'+str(index)+'.csv')
 	features=update_features(features,option_distance)
-	# labels_gt_arr = np.asarray(labels_gt)
+	labels_gt_arr = np.asarray(labels_gt)
 	# print("pos",len(labels_gt_arr[labels_gt_arr>0]))
 	# print("neg",len(labels_gt_arr[labels_gt_arr<0]))
-	# pos_labels_gt = labels_gt.count(1)
-	# neg_labels_gt = labels_gt.count(-1)
+	pos_labels_gt = labels_gt.count(1)
+	neg_labels_gt = labels_gt.count(-1)
 	traders=list(set(trader))
 	for j in range(no_analysts):
 		for i in traders:
@@ -47,7 +47,6 @@ def cto(no_analysts,threshold_k,index,option_distance,option_clustering,severity
 				frequency[j][i]=0
 	traders.sort()
 	kmeans=do_cluster(features,no_analysts,cluster_centers,severity,trader,option_clustering)
-	print('Eligibility based allocation')
 	labels=kmeans.labels_
 	map_analyst_labels={}
 	cluster_size = []
@@ -65,18 +64,18 @@ def cto(no_analysts,threshold_k,index,option_distance,option_clustering,severity
 		vis=set()
 		for _ in range(threshold_k):
 			x=get_top(map_analyst_labels[i],vis,trader,severity,i)
-			# print(trader[x],end=' ')
+			print(trader[x],end=' ')
 			vis.add(x)
 			top_labels.append(x)
 		update_frequency(map_analyst_labels[i],trader,i)
-		map_analyst_labels[i]=list(set(top_labels))
-		inc_trades+=list(set(top_labels))
+		map_analyst_labels[i]=top_labels
+		inc_trades+=top_labels
 		#map_analyst_labels[i]=map_analyst_labels[i][:threshold_k]
 	for i in map_analyst_labels:
 		x=[]
 		for j in map_analyst_labels[i]:
 			if (severity[j]<severity_threshold):
-				x.append((trader[j],round(severity[j],2)))
+				x.append((trader[j],labels_gt[j],round(severity[j],2)))
 		map_analyst_labels[i]=x
 	for j in eligibility:
 		eligibility_arr=sorted([[eligibility[j][i],frequency[j][i],i] for i in eligibility[j]])
@@ -85,6 +84,5 @@ def cto(no_analysts,threshold_k,index,option_distance,option_clustering,severity
 				rank[eligibility_arr[i][2]]+=i
 			except:
 				rank[eligibility_arr[i][2]]=i
-	
 	print("\n\n\n",sorted(list(rank.keys()),key=lambda i: rank[i]),"\n\n\n")
-	return map_analyst_labels,kmeans.cluster_centers_,cluster_size
+	return map_analyst_labels,kmeans.cluster_centers_,cluster_size,neg_labels_gt

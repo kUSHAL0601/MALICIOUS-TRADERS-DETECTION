@@ -24,7 +24,7 @@ def read_file(filename):
 	for i in lines:
 		trader.append(i[0])
 		timestamp.append(i[1])
-		features.append(i[2:-1])
-		severity.append(float(i[-1]))
-		# labels.append(float(i[-1]))
-	return (trader,timestamp,features,severity)
+		features.append(i[2:-2])
+		severity.append(float(i[-2]))
+		labels.append(float(i[-1]))
+	return (trader,timestamp,features,severity,labels)
