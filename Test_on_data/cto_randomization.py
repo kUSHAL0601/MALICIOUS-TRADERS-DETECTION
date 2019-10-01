@@ -16,7 +16,7 @@ def pick_random(array,size):
 def cto(no_analysts,threshold_k,index,option_distance,option_clustering,severity_threshold,file_dir,cluster_centers=[]):
 	threshold_k1=int(0.7*threshold_k)
 	threshold_k2=threshold_k - threshold_k1
-	(trader,timestamp,features,severity,labels_gt)=read_file(file_dir+'/feature_vector_'+str(index)+'.csv')
+	(trader,timestamp,features,severity,labels_gt)=read_file(file_dir+'feature_'+str(index)+'.csv')
 	labels_gt_arr = np.asarray(labels_gt)
 	print("pos",len(labels_gt_arr[labels_gt_arr>0]))
 	print("neg",len(labels_gt_arr[labels_gt_arr<0]))

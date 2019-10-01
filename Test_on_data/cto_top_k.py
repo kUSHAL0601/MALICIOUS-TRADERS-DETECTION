@@ -3,7 +3,7 @@ from kmeans_clustering import *
 from distance import *
 #_non_normalized
 def cto(no_analysts,threshold_k,index,option_distance,option_clustering,severity_threshold,file_dir,cluster_centers=[]):
-	(trader,timestamp,features,severity,labels_gt)=read_file(file_dir+'/feature_vector_'+str(index)+'.csv')
+	(trader,timestamp,features,severity,labels_gt)=read_file(file_dir+'feature_'+str(index)+'.csv')
 	features=update_features(features,option_distance)
 	labels_gt_arr = np.asarray(labels_gt)
 	print("pos",len(labels_gt_arr[labels_gt_arr>0]))

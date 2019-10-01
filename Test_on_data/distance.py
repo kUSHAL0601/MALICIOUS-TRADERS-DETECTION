@@ -1,5 +1,5 @@
 import numpy as np
-def update_features(features,option="Euclidean"):
+def update_features(features,option="Mahalanobis"):
 	'''
 	Update features based on distance type
 
@@ -9,8 +9,6 @@ def update_features(features,option="Euclidean"):
 	features --> Features taken into consideration
 	option --> Distance type: Euclidean, Mahalanobis
 	'''
-	if option=="Euclidean":
+	if option=="Mahalanobis":
 		return features
-	elif option=="Mahalanobis":
-		features=np.asarray(features)
-		return (features-features.mean())/features.std()
+	
