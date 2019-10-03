@@ -41,7 +41,8 @@ def do_cluster(features,no_traders,cluster_centers,severity,traders,option="Basi
 	traders --> list of traders doing particular trade
 	option --> Basic(Kmeans), Weighted(kmeans with severity as weights), NormalizedT(kmeans with normalized[based on trader] severity as weights)
 	'''
-	weights=get_weight(severity,traders,option)
+	sev_weights = [1-sev for sev in severity]
+	weights= get_weight(sev_weights,traders,option)
 	features=np.array(features)
 	if not len(cluster_centers):
 		kmeans=KMeans(n_clusters=no_traders,random_state=0).fit(features,sample_weight=weights)
