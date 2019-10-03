@@ -59,7 +59,7 @@ def cto(no_analysts,threshold_k,index,option_distance,option_clustering,severity
 	#print(cluster_size)
 	inc_trades=[]
 	for i in map_analyst_labels:
-		map_analyst_labels[i].sort(key=lambda i:severity[i],reverse=True)
+		map_analyst_labels[i].sort(key=lambda i:severity[i],reverse=False)
 		top_labels=[]
 		vis=set()
 		for _ in range(threshold_k):
