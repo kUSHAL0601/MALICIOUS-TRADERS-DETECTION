@@ -37,7 +37,7 @@ def cto(no_analysts,threshold_k,index,option_distance,option_clustering,severity
 		cluster_size.append(len(map_analyst_labels[i]))
 	print(cluster_size)
 	for i in map_analyst_labels:
-		map_analyst_labels[i].sort(key=lambda i:severity[i],reverse=True)
+		map_analyst_labels[i].sort(key=lambda i:severity[i],reverse=False)
 		chosen=map_analyst_labels[i][:threshold_k1]
 		chosen+=pick_random(map_analyst_labels[i][threshold_k1:],threshold_k2)
 		map_analyst_labels[i]=chosen
