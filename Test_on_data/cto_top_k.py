@@ -24,7 +24,7 @@ def cto(no_analysts,threshold_k,index,option_distance,option_clustering,severity
 		cluster_size.append(len(map_analyst_labels[i]))
 	print(cluster_size)
 	for i in map_analyst_labels:
-		map_analyst_labels[i].sort(key=lambda i:severity[i],reverse=True)
+		map_analyst_labels[i].sort(key=lambda i:severity[i],reverse=False)
 		map_analyst_labels[i]=map_analyst_labels[i][:threshold_k]
 	for i in map_analyst_labels:
 		x=[]
